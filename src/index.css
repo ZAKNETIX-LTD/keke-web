@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@theme {
+  --color-trigo: #0d9488;
+  --color-trigo-hover: #0f766e;
+  --color-trigo-deep: #115e59;
+  --color-trigo-muted: #ccfbf1;
+  --color-trigo-glow: #5eead4;
+  --color-amber: #f59e0b;
+  --color-amber-soft: #fef3c7;
+  --color-ink: #0b1220;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --color-panel: #ffffff;
+  --color-canvas: #f3f7f6;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --shadow-lift: 0 18px 50px rgba(13, 148, 136, 0.12);
+  --radius-panel: 1.5rem;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(13, 148, 136, 0.16), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(245, 158, 11, 0.12), transparent 50%),
+    linear-gradient(180deg, #f7fbfa 0%, #eef5f3 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-rise-delay-1 {
+  animation-delay: 0.06s;
+}
+.animate-rise-delay-2 {
+  animation-delay: 0.12s;
+}
+.animate-rise-delay-3 {
+  animation-delay: 0.18s;
+}
+.animate-rise-delay-4 {
+  animation-delay: 0.24s;
+}
+
+.ui-panel {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+}
+
+.ui-input {
+  width: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ui-input:focus {
+  border-color: var(--color-trigo);
+  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.12);
+}
+
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 0.9rem;
+  padding: 0.7rem 1.05rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ui-btn:active {
+  transform: translateY(1px);
+}
+
+.ui-btn-primary {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 55%, #0f766e 100%);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(13, 148, 136, 0.28);
+}
+
+.ui-btn-primary:hover {
+  filter: brightness(1.03);
+}
+
+.ui-btn-ghost {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--color-line);
+  color: var(--color-ink);
+}
+
+.ui-btn-ghost:hover {
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.ui-btn-danger {
+  background: #fff;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.ui-table-wrap {
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-soft);
+}
+
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.ui-table thead {
+  background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+}
+
+.ui-table th {
+  padding: 0.85rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.ui-table td {
+  padding: 0.95rem 1rem;
+  border-top: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.ui-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.ui-table tbody tr:hover {
+  background: rgba(204, 251, 241, 0.35);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+  border-radius: 0.75rem;
+}
