@@ -24,6 +24,7 @@ import { PromosPage } from './pages/Promos';
 import { ReportsPage } from './pages/Reports';
 import { PayoutsPage } from './pages/Payouts';
 import { StaffPage } from './pages/Staff';
+import { BroadcastsPage } from './pages/Broadcasts';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,6 +72,7 @@ export default function App() {
               <Route path="/sos/:id" element={<SosDetailPage />} />
               <Route path="/tickets" element={<TicketsPage />} />
               <Route path="/tickets/:id" element={<TicketDetailPage />} />
+              <Route path="/broadcasts" element={<BroadcastsPage />} />
               <Route path="/wallets" element={<WalletPage />} />
               <Route path="/wallets/:userId" element={<WalletDetailPage />} />
               <Route path="/payouts" element={<PayoutsPage />} />

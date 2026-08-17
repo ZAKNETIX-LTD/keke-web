@@ -394,6 +394,36 @@ export const adminApi = {
     );
   },
 
+  previewBroadcast(params: { audience: string; userId?: string }) {
+    return api
+      .get('/api/admin/broadcasts/preview', { params })
+      .then((r) => r.data as { audience: string; count: number });
+  },
+
+  listBroadcasts() {
+    return api.get('/api/admin/broadcasts').then(
+      (r) => r.data.broadcasts as AdminBroadcast[],
+    );
+  },
+
+  sendBroadcast(payload: {
+    title: string;
+    body: string;
+    audience: 'passengers' | 'drivers' | 'all' | 'user';
+    kind?: 'system' | 'promo' | 'safety';
+    userId?: string;
+  }) {
+    return api.post('/api/admin/broadcasts', payload).then(
+      (r) =>
+        r.data as {
+          broadcast: AdminBroadcast | null;
+          targeted: number;
+          inbox: number;
+          pushed: number;
+        },
+    );
+  },
+
   getUser(id: string) {
     return api.get(`/api/admin/users/${id}`).then(
       (r) =>
@@ -654,6 +684,20 @@ export type AdminPayout = {
     email?: string | null;
     phone?: string | null;
   } | null;
+};
+
+export type AdminBroadcast = {
+  id: string;
+  title: string;
+  body: string;
+  audience: 'passengers' | 'drivers' | 'all' | 'user' | string;
+  kind: string;
+  sentBy?: string | null;
+  userId?: string | null;
+  targeted: number;
+  inbox: number;
+  pushed: number;
+  createdAt?: string;
 };
 
 export type AdminNotificationItem = {
