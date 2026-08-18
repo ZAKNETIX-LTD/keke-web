@@ -57,6 +57,10 @@ export function useAdminRealtime(enabled: boolean) {
       if (payload?.type === 'ticket') {
         void qc.invalidateQueries({ queryKey: ['admin', 'tickets'] });
       }
+      if (payload?.type === 'cash') {
+        void qc.invalidateQueries({ queryKey: ['admin', 'riders'] });
+        void qc.invalidateQueries({ queryKey: ['admin', 'notifications'] });
+      }
     });
 
     socket.on('admin:trip-message', (payload: { tripId?: string }) => {

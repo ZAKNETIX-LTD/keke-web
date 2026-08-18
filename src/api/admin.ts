@@ -99,6 +99,17 @@ export const adminApi = {
     );
   },
 
+  flagRiderCash(id: string, payload?: { note?: string }) {
+    return api.post(`/api/admin/riders/${id}/flag-cash`, payload || {}).then(
+      (r) =>
+        r.data as {
+          flagged: boolean;
+          cash: AdminRider['cash'];
+          riderId: string;
+        },
+    );
+  },
+
   uploadFile(file: File) {
     const body = new FormData();
     body.append('file', file);
@@ -405,6 +416,8 @@ export const adminApi = {
             sos: number;
             tickets: number;
             payouts: number;
+            kyc?: number;
+            cash?: number;
             total: number;
           };
         },

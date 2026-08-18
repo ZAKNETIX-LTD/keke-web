@@ -65,7 +65,7 @@ export function NotificationsBell() {
             <div className="text-sm font-extrabold">Needs attention</div>
             <div className="text-[11px] font-bold text-muted">
               {data?.counts.sos || 0} SOS · {data?.counts.tickets || 0} tickets ·{' '}
-              {data?.counts.payouts || 0} payouts
+              {data?.counts.cash || 0} cash
             </div>
           </div>
           <ul className="max-h-[22rem] overflow-y-auto">
@@ -79,7 +79,14 @@ export function NotificationsBell() {
                   <Link
                     to={item.href}
                     onClick={() => setOpen(false)}
-                    className="block px-4 py-3 transition hover:bg-trigo-muted/40"
+                    className={[
+                      'block px-4 py-3 transition',
+                      item.type === 'cash'
+                        ? 'bg-amber-50/80 hover:bg-amber-100'
+                        : item.type === 'sos'
+                          ? 'bg-rose-50/70 hover:bg-rose-50'
+                          : 'hover:bg-trigo-muted/40',
+                    ].join(' ')}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
@@ -90,7 +97,16 @@ export function NotificationsBell() {
                           {item.body}
                         </div>
                       </div>
-                      <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-muted">
+                      <span
+                        className={[
+                          'shrink-0 text-[10px] font-bold uppercase tracking-wide',
+                          item.type === 'cash'
+                            ? 'text-amber-700'
+                            : item.type === 'sos'
+                              ? 'text-rose-600'
+                              : 'text-muted',
+                        ].join(' ')}
+                      >
                         {item.type} · {timeAgo(item.createdAt)}
                       </span>
                     </div>

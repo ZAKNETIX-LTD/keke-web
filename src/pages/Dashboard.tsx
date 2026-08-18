@@ -93,6 +93,7 @@ function KpiCard({
   trend,
   icon: Icon,
   tone = 'teal',
+  href,
 }: {
   label: string;
   value: string | number;
@@ -100,6 +101,7 @@ function KpiCard({
   trend?: number;
   icon: LucideIcon;
   tone?: 'teal' | 'amber' | 'rose' | 'slate';
+  href?: string;
 }) {
   const tones = {
     teal: 'bg-trigo/10 text-trigo',
@@ -108,8 +110,8 @@ function KpiCard({
     slate: 'bg-slate-500/10 text-slate-600',
   };
 
-  return (
-    <div className="ui-panel flex h-full flex-col p-4 sm:p-5">
+  const inner = (
+    <>
       <div className="flex items-start justify-between gap-3">
         <div className={`grid h-10 w-10 place-items-center rounded-xl ${tones[tone]}`}>
           <Icon size={18} strokeWidth={2.2} />
@@ -125,6 +127,30 @@ function KpiCard({
       {hint ? (
         <div className="mt-2 text-xs font-medium text-muted">{hint}</div>
       ) : null}
+    </>
+  );
+
+  const ring =
+    tone === 'amber' && Number(value) > 0
+      ? 'ring-2 ring-amber-400/80 bg-amber-50/60'
+      : tone === 'rose' && Number(value) > 0
+        ? 'ring-2 ring-rose-400/70 bg-rose-50/50'
+        : '';
+
+  if (href) {
+    return (
+      <Link
+        to={href}
+        className={`ui-panel flex h-full flex-col p-4 sm:p-5 transition hover:-translate-y-0.5 ${ring}`}
+      >
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={`ui-panel flex h-full flex-col p-4 sm:p-5 ${ring}`}>
+      {inner}
     </div>
   );
 }
@@ -395,6 +421,7 @@ export function DashboardPage() {
               hint="Needs immediate review"
               icon={AlertTriangle}
               tone="rose"
+              href="/sos"
             />
             <KpiCard
               label="Support queue"
@@ -409,6 +436,7 @@ export function DashboardPage() {
               hint={`${stats.cashOverThreshold || 0} holding ₦5,000+`}
               icon={Banknote}
               tone="amber"
+              href="/cash-flags"
             />
             <KpiCard
               label="Wallet volume"

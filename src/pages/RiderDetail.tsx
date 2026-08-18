@@ -99,6 +99,22 @@ export function RiderDetailPage() {
       void qc.invalidateQueries({ queryKey: ['admin', 'rider', id] });
       void qc.invalidateQueries({ queryKey: ['admin', 'riders'] });
       void qc.invalidateQueries({ queryKey: ['admin', 'stats'] });
+      void qc.invalidateQueries({ queryKey: ['admin', 'notifications'] });
+    },
+    onError: (err: Error) => setMessage(err.message),
+  });
+
+  const flagMut = useMutation({
+    mutationFn: () =>
+      adminApi.flagRiderCash(id, {
+        note: remitNote.trim() || undefined,
+      }),
+    onSuccess: () => {
+      setMessage('Rider flagged and taken offline until remittance.');
+      void qc.invalidateQueries({ queryKey: ['admin', 'rider', id] });
+      void qc.invalidateQueries({ queryKey: ['admin', 'riders'] });
+      void qc.invalidateQueries({ queryKey: ['admin', 'stats'] });
+      void qc.invalidateQueries({ queryKey: ['admin', 'notifications'] });
     },
     onError: (err: Error) => setMessage(err.message),
   });
@@ -174,7 +190,7 @@ export function RiderDetailPage() {
               <StatusBadge status={rider.user?.status || 'active'} />
               <StatusBadge status={rider.kycStatus || data.kyc?.status || 'not_started'} />
               {cash?.flagged ? (
-                <span className="inline-flex items-center rounded-lg bg-amber-500/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-amber-800">
+                <span className="inline-flex items-center rounded-lg bg-amber-500 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
                   Cash flagged
                 </span>
               ) : null}
@@ -208,22 +224,22 @@ export function RiderDetailPage() {
           className={[
             'ui-panel p-5',
             cash?.flagged
-              ? 'border-amber-300 bg-amber-50/70'
-              : 'border-line',
+              ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-300'
+              : 'border-amber-200 bg-amber-50/40',
           ].join(' ')}
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-amber-800">
-                Unremitted cash
+                {cash?.flagged ? 'Needs remittance' : 'Unremitted cash'}
               </div>
-              <div className="mt-1 text-2xl font-extrabold tracking-[-0.04em]">
+              <div className="mt-1 text-2xl font-extrabold tracking-[-0.04em] text-amber-950">
                 {naira(cashHeld)}
               </div>
               <div className="mt-1 text-sm font-semibold text-muted">
                 {cash?.flagged
                   ? cash.reasonLabel || 'Taken offline until remittance is recorded'
-                  : 'Admin is notified. Account stays live while this rider is still taking trips.'}
+                  : 'Admin is notified. Account stays live while this rider is still taking trips. Flag them to take them offline now.'}
               </div>
               {cash?.flaggedAt ? (
                 <div className="mt-1 text-xs font-medium text-muted">
@@ -266,6 +282,16 @@ export function RiderDetailPage() {
               >
                 {remitMut.isPending ? 'Recording…' : 'Record remittance'}
               </button>
+              {!cash?.flagged && cashHeld > 0 ? (
+                <button
+                  type="button"
+                  disabled={flagMut.isPending}
+                  className="ui-btn border border-amber-400 bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+                  onClick={() => flagMut.mutate()}
+                >
+                  {flagMut.isPending ? 'Flagging…' : 'Flag & take offline'}
+                </button>
+              ) : null}
             </form>
           </div>
         </section>

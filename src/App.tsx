@@ -17,6 +17,7 @@ import { UserDetailPage } from './pages/UserDetail';
 import { RidersPage } from './pages/Riders';
 import { RiderDetailPage } from './pages/RiderDetail';
 import { KycQueuePage } from './pages/KycQueue';
+import { CashFlagsPage } from './pages/CashFlags';
 import { LiveRidersPage } from './pages/LiveRiders';
 import { WalletPage } from './pages/Wallet';
 import { WalletDetailPage } from './pages/WalletDetail';
@@ -65,6 +66,7 @@ export default function App() {
               <Route path="/riders" element={<RidersPage />} />
               <Route path="/riders/:id" element={<RiderDetailPage />} />
               <Route path="/kyc" element={<KycQueuePage />} />
+              <Route path="/cash-flags" element={<CashFlagsPage />} />
               <Route path="/live-riders" element={<LiveRidersPage />} />
               <Route path="/trips" element={<TripsPage />} />
               <Route path="/trips/:id" element={<TripDetailPage />} />

@@ -16,6 +16,7 @@ import {
   Users,
   Wallet,
   FileCheck2,
+  CircleAlert,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -26,6 +27,8 @@ import { useAuth } from '../auth/AuthContext';
 import { NotificationsBell } from './NotificationsBell';
 import { useAdminRealtime } from '../hooks/useAdminRealtime';
 import { roleLabel } from '../lib/types';
+import { useQuery } from '@tanstack/react-query';
+import { adminApi } from '../api/admin';
 
 const NAV: {
   to: string;
@@ -39,6 +42,7 @@ const NAV: {
   { to: '/staff', label: 'Staff', icon: Shield, group: 'Ops' },
   { to: '/riders', label: 'Riders', icon: Bike, group: 'Ops' },
   { to: '/kyc', label: 'KYC queue', icon: FileCheck2, group: 'Ops' },
+  { to: '/cash-flags', label: 'Cash flags', icon: CircleAlert, group: 'Ops' },
   { to: '/live-riders', label: 'Live map', icon: Navigation, group: 'Ops' },
   { to: '/trips', label: 'Trips', icon: MapPinned, group: 'Ops' },
   { to: '/sos', label: 'SOS', icon: AlertTriangle, group: 'Care' },
@@ -61,7 +65,13 @@ const NAV_GROUPS = NAV.reduce<
   return acc;
 }, []);
 
-function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarNav({
+  onNavigate,
+  badges,
+}: {
+  onNavigate?: () => void;
+  badges?: Record<string, number>;
+}) {
   return (
     <nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-3 pb-4">
       {NAV_GROUPS.map((group) => (
@@ -72,6 +82,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           <div className="flex flex-col gap-0.5">
             {group.items.map((item) => {
               const Icon = item.icon;
+              const badge = Number(badges?.[item.to] || 0);
               return (
                 <NavLink
                   key={item.to}
@@ -83,7 +94,11 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                       'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-colors duration-150',
                       isActive
                         ? 'bg-trigo text-white shadow-[0_8px_20px_rgba(13,148,136,0.28)]'
-                        : 'text-ink/70 hover:bg-trigo-muted/60 hover:text-ink',
+                        : item.to === '/cash-flags' && badge > 0
+                          ? 'bg-amber-50 text-amber-900 hover:bg-amber-100'
+                          : item.to === '/sos' && badge > 0
+                            ? 'bg-rose-50 text-rose-800 hover:bg-rose-100'
+                            : 'text-ink/70 hover:bg-trigo-muted/60 hover:text-ink',
                     ].join(' ')
                   }
                 >
@@ -95,10 +110,28 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                         className={
                           isActive
                             ? 'text-white'
-                            : 'text-muted group-hover:text-trigo'
+                            : item.to === '/cash-flags' && badge > 0
+                              ? 'text-amber-600'
+                              : 'text-muted group-hover:text-trigo'
                         }
                       />
-                      <span>{item.label}</span>
+                      <span className="flex-1">{item.label}</span>
+                      {badge > 0 ? (
+                        <span
+                          className={[
+                            'min-w-[1.25rem] rounded-full px-1.5 py-0.5 text-center text-[10px] font-extrabold',
+                            isActive
+                              ? 'bg-white/20 text-white'
+                              : item.to === '/cash-flags'
+                                ? 'bg-amber-500 text-white'
+                                : item.to === '/sos'
+                                  ? 'bg-rose-500 text-white'
+                                  : 'bg-trigo text-white',
+                          ].join(' ')}
+                        >
+                          {badge > 99 ? '99+' : badge}
+                        </span>
+                      ) : null}
                     </>
                   )}
                 </NavLink>
@@ -166,6 +199,19 @@ export function Layout() {
   useAdminRealtime(isAuthenticated);
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: notifs } = useQuery({
+    queryKey: ['admin', 'notifications'],
+    queryFn: () => adminApi.notifications(),
+    refetchInterval: 15_000,
+    enabled: isAuthenticated,
+  });
+  const badges = {
+    '/cash-flags': Number(notifs?.counts.cash || 0),
+    '/kyc': Number(notifs?.counts.kyc || 0),
+    '/sos': Number(notifs?.counts.sos || 0),
+    '/tickets': Number(notifs?.counts.tickets || 0),
+    '/payouts': Number(notifs?.counts.payouts || 0),
+  };
 
   const name =
     [user?.firstname, user?.lastname].filter(Boolean).join(' ') ||
@@ -186,7 +232,7 @@ export function Layout() {
   const sidebar = (
     <div className="flex h-full flex-col">
       <Brand />
-      <SidebarNav onNavigate={() => setMobileOpen(false)} />
+      <SidebarNav onNavigate={() => setMobileOpen(false)} badges={badges} />
       <UserCard name={name} initials={initials} role={role} onLogout={logout} />
     </div>
   );

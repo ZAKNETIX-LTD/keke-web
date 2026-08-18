@@ -319,7 +319,16 @@ export function RidersPage() {
               </tr>
             ) : (
               (data || []).map((rider) => (
-                <tr key={rider.id}>
+                <tr
+                  key={rider.id}
+                  className={
+                    rider.cash?.flagged
+                      ? 'bg-amber-50/90'
+                      : Number(rider.cash?.held || 0) >= 5000
+                        ? 'bg-amber-50/40'
+                        : undefined
+                  }
+                >
                   <td>
                     <Link
                       to={`/riders/${rider.id}`}
@@ -349,11 +358,20 @@ export function RidersPage() {
                   <td>
                     {rider.cash?.flagged ? (
                       <div>
-                        <span className="inline-flex rounded-lg bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
-                          Flagged
+                        <span className="inline-flex rounded-lg bg-amber-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                          Needs remittance
+                        </span>
+                        <div className="mt-1 text-xs font-extrabold text-amber-900">
+                          ₦{Number(rider.cash.held || 0).toLocaleString()}
+                        </div>
+                      </div>
+                    ) : Number(rider.cash?.held || 0) >= 5000 ? (
+                      <div>
+                        <span className="inline-flex rounded-lg bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                          Watch
                         </span>
                         <div className="mt-1 text-xs font-semibold">
-                          ₦{Number(rider.cash.held || 0).toLocaleString()}
+                          ₦{Number(rider.cash?.held || 0).toLocaleString()}
                         </div>
                       </div>
                     ) : Number(rider.cash?.held || 0) > 0 ? (
