@@ -33,6 +33,7 @@ export const adminApi = {
     status?: string;
     online?: string;
     kycStatus?: string;
+    cash?: string;
   }) {
     return api
       .get('/api/admin/riders', { params })
@@ -78,6 +79,22 @@ export const adminApi = {
         r.data as {
           rider: AdminRider;
           kyc: RiderKycPayload;
+        },
+    );
+  },
+
+  reconcileRiderCash(
+    id: string,
+    payload: { amount?: number | null; note?: string },
+  ) {
+    return api.post(`/api/admin/riders/${id}/reconcile-cash`, payload).then(
+      (r) =>
+        r.data as {
+          remitted: number;
+          remaining: number;
+          flagged: boolean;
+          cash: AdminRider['cash'];
+          riderId: string;
         },
     );
   },
@@ -549,6 +566,8 @@ export type DashboardStats = {
   cancelRateAllTime: number;
   sosOpen: number;
   ticketsOpen: number;
+  cashFlagged?: number;
+  cashOverThreshold?: number;
   walletVolumeToday: number;
   walletVolumeLast7Days: number;
   completedChange: number;
@@ -597,6 +616,7 @@ export type DashboardPayload = {
   attention: {
     sos: SosEvent[];
     tickets: SupportTicket[];
+    cash?: AdminRider[];
   };
   recentTrips: AdminTrip[];
   liveTrips: AdminTrip[];
@@ -609,6 +629,13 @@ export type PlatformSettings = {
   supportEmail: string;
   companyName: string;
   maintenanceMode: boolean;
+  cashThreshold?: number;
+  cashHardCap?: number;
+  cashBusyWeekTrips?: number;
+  cashBusyDayTrips?: number;
+  cashIdleHours?: number;
+  cashBusyFlagHours?: number;
+  cashModerateFlagHours?: number;
   rideRates: {
     standard: RideRate;
     shared: RideRate;

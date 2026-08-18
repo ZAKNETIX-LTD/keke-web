@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 
 import { adminApi } from '../api/admin';
@@ -25,10 +25,14 @@ const emptyForm = {
 export function RidersPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [searchParams] = useSearchParams();
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('all');
   const [online, setOnline] = useState('all');
-  const [kycStatus, setKycStatus] = useState('all');
+  const [kycStatus, setKycStatus] = useState(
+    searchParams.get('kyc') || 'all',
+  );
+  const [cash, setCash] = useState(searchParams.get('cash') || 'all');
   const [message, setMessage] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -39,8 +43,9 @@ export function RidersPage() {
       status: status === 'all' ? undefined : status,
       online: online === 'all' ? undefined : online,
       kycStatus: kycStatus === 'all' ? undefined : kycStatus,
+      cash: cash === 'all' ? undefined : cash,
     }),
-    [q, status, online, kycStatus],
+    [q, status, online, kycStatus, cash],
   );
 
   const { data, isLoading, error } = useQuery({
@@ -274,6 +279,15 @@ export function RidersPage() {
           <option value="approved">Approved</option>
           <option value="rejected">Rejected</option>
         </select>
+        <select
+          className="ui-input w-auto min-w-[160px]"
+          value={cash}
+          onChange={(e) => setCash(e.target.value)}
+        >
+          <option value="all">All cash</option>
+          <option value="flagged">Cash flagged</option>
+          <option value="over">Holding ₦5,000+</option>
+        </select>
       </div>
 
       {error ? <Flash tone="error">{(error as Error).message}</Flash> : null}
@@ -285,6 +299,7 @@ export function RidersPage() {
               <th>Rider</th>
               <th>Vehicle</th>
               <th>KYC</th>
+              <th>Cash</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -292,13 +307,13 @@ export function RidersPage() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td className="text-muted" colSpan={5}>
+                <td className="text-muted" colSpan={6}>
                   Loading riders…
                 </td>
               </tr>
             ) : (data || []).length === 0 ? (
               <tr>
-                <td className="text-muted" colSpan={5}>
+                <td className="text-muted" colSpan={6}>
                   No riders found
                 </td>
               </tr>
@@ -330,6 +345,24 @@ export function RidersPage() {
                   </td>
                   <td>
                     <StatusBadge status={rider.kycStatus || 'not_started'} />
+                  </td>
+                  <td>
+                    {rider.cash?.flagged ? (
+                      <div>
+                        <span className="inline-flex rounded-lg bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                          Flagged
+                        </span>
+                        <div className="mt-1 text-xs font-semibold">
+                          ₦{Number(rider.cash.held || 0).toLocaleString()}
+                        </div>
+                      </div>
+                    ) : Number(rider.cash?.held || 0) > 0 ? (
+                      <div className="text-sm font-semibold">
+                        ₦{Number(rider.cash?.held || 0).toLocaleString()}
+                      </div>
+                    ) : (
+                      <span className="text-xs font-medium text-muted">—</span>
+                    )}
                   </td>
                   <td>
                     <div className="flex flex-col gap-1">

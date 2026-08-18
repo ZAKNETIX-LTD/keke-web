@@ -44,6 +44,8 @@ export function RiderDetailPage() {
     plateNumber: '',
     vehicleModel: 'TVS King',
   });
+  const [remitAmount, setRemitAmount] = useState('');
+  const [remitNote, setRemitNote] = useState('');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'rider', id],
@@ -82,6 +84,25 @@ export function RiderDetailPage() {
     onError: (err: Error) => setMessage(err.message),
   });
 
+  const remitMut = useMutation({
+    mutationFn: () =>
+      adminApi.reconcileRiderCash(id, {
+        amount: remitAmount.trim() ? Number(remitAmount) : null,
+        note: remitNote.trim() || undefined,
+      }),
+    onSuccess: (res) => {
+      setMessage(
+        `Recorded ₦${Number(res.remitted || 0).toLocaleString()} remittance. Remaining ₦${Number(res.remaining || 0).toLocaleString()}.`,
+      );
+      setRemitAmount('');
+      setRemitNote('');
+      void qc.invalidateQueries({ queryKey: ['admin', 'rider', id] });
+      void qc.invalidateQueries({ queryKey: ['admin', 'riders'] });
+      void qc.invalidateQueries({ queryKey: ['admin', 'stats'] });
+    },
+    onError: (err: Error) => setMessage(err.message),
+  });
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -111,6 +132,8 @@ export function RiderDetailPage() {
   const ratings = data.ratings;
   const trips = data.trips || [];
   const wallet = data.wallet;
+  const cash = rider.cash;
+  const cashHeld = Number(cash?.held || 0);
   const fullName =
     [user?.firstname, user?.lastname].filter(Boolean).join(' ') || rider.name;
 
@@ -150,6 +173,11 @@ export function RiderDetailPage() {
             <div className="flex flex-wrap gap-2">
               <StatusBadge status={rider.user?.status || 'active'} />
               <StatusBadge status={rider.kycStatus || data.kyc?.status || 'not_started'} />
+              {cash?.flagged ? (
+                <span className="inline-flex items-center rounded-lg bg-amber-500/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-amber-800">
+                  Cash flagged
+                </span>
+              ) : null}
               <span
                 className={[
                   'inline-flex items-center rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide',
@@ -174,6 +202,74 @@ export function RiderDetailPage() {
       </div>
 
       {message ? <Flash>{message}</Flash> : null}
+
+      {cashHeld > 0 || cash?.flagged ? (
+        <section
+          className={[
+            'ui-panel p-5',
+            cash?.flagged
+              ? 'border-amber-300 bg-amber-50/70'
+              : 'border-line',
+          ].join(' ')}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-amber-800">
+                Unremitted cash
+              </div>
+              <div className="mt-1 text-2xl font-extrabold tracking-[-0.04em]">
+                {naira(cashHeld)}
+              </div>
+              <div className="mt-1 text-sm font-semibold text-muted">
+                {cash?.flagged
+                  ? cash.reasonLabel || 'Taken offline until remittance is recorded'
+                  : 'Admin is notified. Account stays live while this rider is still taking trips.'}
+              </div>
+              {cash?.flaggedAt ? (
+                <div className="mt-1 text-xs font-medium text-muted">
+                  Flagged {formatWhen(cash.flaggedAt)}
+                </div>
+              ) : null}
+            </div>
+            <form
+              className="flex min-w-[240px] flex-1 flex-wrap items-end gap-2 sm:max-w-md"
+              onSubmit={(e) => {
+                e.preventDefault();
+                remitMut.mutate();
+              }}
+            >
+              <label className="min-w-[120px] flex-1 text-xs font-bold">
+                Amount (blank = full)
+                <input
+                  className="ui-input mt-1"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder={String(Math.round(cashHeld))}
+                  value={remitAmount}
+                  onChange={(e) => setRemitAmount(e.target.value)}
+                />
+              </label>
+              <label className="min-w-[140px] flex-[2] text-xs font-bold">
+                Note
+                <input
+                  className="ui-input mt-1"
+                  placeholder="Cash desk / reference"
+                  value={remitNote}
+                  onChange={(e) => setRemitNote(e.target.value)}
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={remitMut.isPending}
+                className="ui-btn ui-btn-primary disabled:opacity-60"
+              >
+                {remitMut.isPending ? 'Recording…' : 'Record remittance'}
+              </button>
+            </form>
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <div className="ui-panel p-4">

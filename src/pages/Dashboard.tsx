@@ -3,6 +3,7 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   Bike,
+  Banknote,
   Headphones,
   MapPinned,
   RefreshCw,
@@ -403,6 +404,13 @@ export function DashboardPage() {
               tone="amber"
             />
             <KpiCard
+              label="Cash flags"
+              value={stats.cashFlagged || 0}
+              hint={`${stats.cashOverThreshold || 0} holding ₦5,000+`}
+              icon={Banknote}
+              tone="amber"
+            />
+            <KpiCard
               label="Wallet volume"
               value={naira(walletVol)}
               hint={`Today ${naira(stats.walletVolumeToday)}`}
@@ -594,16 +602,17 @@ export function DashboardPage() {
                 <div>
                   <h3 className="text-sm font-extrabold">Needs attention</h3>
                   <p className="text-xs font-medium text-muted">
-                    Open SOS and support tickets
+                    SOS, tickets, and unremitted cash
                   </p>
                 </div>
-                <Link to="/sos" className="text-xs font-bold text-trigo hover:underline">
-                  View SOS
+                <Link to="/riders?cash=flagged" className="text-xs font-bold text-trigo hover:underline">
+                  Cash flags
                 </Link>
               </div>
               <div className="space-y-2">
                 {(data?.attention.sos || []).length === 0 &&
-                (data?.attention.tickets || []).length === 0 ? (
+                (data?.attention.tickets || []).length === 0 &&
+                (data?.attention.cash || []).length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-line px-4 py-10 text-center text-sm font-medium text-muted">
                     Queues are clear
                   </div>
@@ -652,6 +661,28 @@ export function DashboardPage() {
                       </div>
                     </div>
                     <Headphones size={16} className="mt-1 shrink-0 text-trigo" />
+                  </Link>
+                ))}
+
+                {(data?.attention.cash || []).map((rider) => (
+                  <Link
+                    key={`cash-${rider.id}`}
+                    to={`/riders/${rider.id}`}
+                    className="flex items-start justify-between gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/70 px-3.5 py-3 transition hover:bg-amber-50"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex rounded-lg bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                          Cash
+                        </span>
+                      </div>
+                      <div className="mt-1.5 text-sm font-bold">{rider.name}</div>
+                      <div className="text-xs font-medium text-muted">
+                        ₦{Number(rider.cash?.held || 0).toLocaleString()} unremitted
+                        {rider.cash?.reasonLabel ? ` · ${rider.cash.reasonLabel}` : ''}
+                      </div>
+                    </div>
+                    <Banknote size={16} className="mt-1 shrink-0 text-amber-600" />
                   </Link>
                 ))}
               </div>

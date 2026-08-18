@@ -89,6 +89,15 @@ export type AdminRider = {
     role?: number;
     status?: string;
   } | null;
+  cash?: {
+    held: number;
+    flagged: boolean;
+    reason?: string | null;
+    reasonLabel?: string | null;
+    flaggedAt?: string | null;
+    overThresholdAt?: string | null;
+    reconciledAt?: string | null;
+  } | null;
 };
 
 export type RiderKycPayload = {

@@ -93,12 +93,13 @@ export function LoginPage() {
           ) : null}
 
           <label className="mt-7 block text-sm font-bold">
-            Email
+            Email, phone, or username
             <input
               className="ui-input mt-2"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              type="email"
+              type="text"
+              autoComplete="username"
               required
             />
           </label>

@@ -263,7 +263,44 @@ export function SettingsPage() {
                   />
                   Maintenance mode
                 </label>
+                <label className="text-sm font-bold">
+                  Cash notify at (₦)
+                  <input
+                    className="ui-input mt-1.5"
+                    type="number"
+                    min="0"
+                    value={settings.cashThreshold ?? 5000}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        cashThreshold: Number(e.target.value),
+                      })
+                    }
+                  />
+                </label>
+                <label className="text-sm font-bold">
+                  Cash hard flag (₦)
+                  <input
+                    className="ui-input mt-1.5"
+                    type="number"
+                    min="0"
+                    value={settings.cashHardCap ?? 15000}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        cashHardCap: Number(e.target.value),
+                      })
+                    }
+                  />
+                </label>
               </div>
+
+              <p className="text-xs font-medium text-muted">
+                Busy riders (12+ trips in 7 days or 5+ today) can keep working
+                after ₦5,000 — admin is notified. Quiet or idle riders get
+                taken offline at ₦5,000 until remittance. Everyone is flagged
+                at the hard cap.
+              </p>
 
               <div>
                 <h3 className="font-extrabold tracking-[-0.02em]">

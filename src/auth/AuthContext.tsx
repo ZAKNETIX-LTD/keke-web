@@ -14,7 +14,7 @@ type AuthContextValue = {
   user: AdminUser | null;
   token: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   logout: () => void;
   setUser: (user: AdminUser | null) => void;
 };
@@ -29,8 +29,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
   const [token, setToken] = useState<string | null>(() => getStoredToken());
 
-  const login = useCallback(async (email: string, password: string) => {
-    const next = await loginRequest(email, password);
+  const login = useCallback(async (identifier: string, password: string) => {
+    const next = await loginRequest(identifier, password);
     setUser(next);
     setToken(getStoredToken());
   }, []);

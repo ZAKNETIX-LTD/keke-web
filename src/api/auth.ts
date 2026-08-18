@@ -1,8 +1,13 @@
 import { api, storeAuth } from './client';
 import { isAdminRole, type AdminUser } from '../lib/types';
 
-export async function login(email: string, password: string) {
-  const { data } = await api.post('/api/users/login', { email, password });
+export async function login(identifier: string, password: string) {
+  const value = identifier.trim();
+  const { data } = await api.post('/api/users/login', {
+    identifier: value,
+    email: value,
+    password,
+  });
   const role = Number(data.role ?? data.user?.role ?? 0);
   if (!isAdminRole(role)) {
     throw new Error('Admin access only. This account is not an admin.');
