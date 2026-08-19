@@ -565,6 +565,14 @@ export type DashboardStats = {
   avgFareInRange?: number;
   cancelRateInRange?: number;
   walletVolumeInRange?: number;
+  platformRevenueToday?: number;
+  platformRevenueInRange?: number;
+  platformRevenueAllTime?: number;
+  platformRevenueLast7Days?: number;
+  driverShareInRange?: number;
+  netFareInRange?: number;
+  taxInRange?: number;
+  commissionPercent?: number;
   completedLast7Days: number;
   cancelledLast7Days: number;
   tripsLast7Days: number;
@@ -585,6 +593,8 @@ export type DashboardStats = {
   walletVolumeLast7Days: number;
   completedChange: number;
   gmvChange: number;
+  platformRevenueChange?: number;
+  platformRevenueChangeToday?: number;
   tripsChange: number;
   cancelChange: number;
 };
@@ -596,6 +606,7 @@ export type DashboardSeriesPoint = {
   completed?: number;
   cancelled?: number;
   revenue?: number;
+  platformRevenue?: number;
 };
 
 export type DashboardHourPoint = {
@@ -639,6 +650,7 @@ export type PlatformSettings = {
   matchRadiusKm: number;
   offerTtlSec: number;
   taxPercent: number;
+  commissionPercent?: number;
   supportEmail: string;
   companyName: string;
   maintenanceMode: boolean;
@@ -672,6 +684,12 @@ export type ReportsPayload = {
   range: { from: string; to: string; days: number };
   summary: {
     gmv: number;
+    platformRevenue?: number;
+    driverShare?: number;
+    netFare?: number;
+    tax?: number;
+    takeRate?: number;
+    commissionPercent?: number;
     completed: number;
     cancelled: number;
     created: number;
@@ -687,7 +705,12 @@ export type ReportsPayload = {
       completed: number;
       cancelled: number;
     }>;
-    revenue: Array<{ date: string; label: string; revenue: number }>;
+    revenue: Array<{
+      date: string;
+      label: string;
+      revenue: number;
+      platformRevenue?: number;
+    }>;
   };
   breakdowns: {
     paymentMethod: Array<{ name: string; value: number }>;

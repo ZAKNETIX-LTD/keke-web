@@ -248,6 +248,29 @@ export function SettingsPage() {
                       })
                     }
                   />
+                  <span className="mt-1 block text-xs font-medium text-muted">
+                    VAT added on top of the fare. Not platform revenue.
+                  </span>
+                </label>
+                <label className="text-sm font-bold">
+                  Commission percent
+                  <input
+                    className="ui-input mt-1.5"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={settings.commissionPercent ?? 15}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        commissionPercent: Number(e.target.value),
+                      })
+                    }
+                  />
+                  <span className="mt-1 block text-xs font-medium text-muted">
+                    Platform take from net fare. Riders keep the rest.
+                  </span>
                 </label>
                 <label className="flex items-center gap-3 rounded-2xl border border-line bg-canvas/70 px-4 py-3 text-sm font-bold sm:mt-7">
                   <input

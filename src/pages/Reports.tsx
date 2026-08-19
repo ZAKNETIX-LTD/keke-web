@@ -1,5 +1,6 @@
 import {
   Bike,
+  Coins,
   MapPinned,
   RefreshCw,
   Wallet,
@@ -150,17 +151,22 @@ export function ReportsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Reports"
-        description="GMV, completion, and earnings over a date range."
+        description="Platform commission, GMV, completion, and earnings over a date range."
         actions={
-          <button
-            type="button"
-            className="ui-btn ui-btn-ghost"
-            onClick={() => void refetch()}
-            disabled={isFetching}
-          >
-            <RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} />
-            Refresh
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/revenue" className="ui-btn ui-btn-ghost">
+              Platform revenue
+            </Link>
+            <button
+              type="button"
+              className="ui-btn ui-btn-ghost"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+            >
+              <RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} />
+              Refresh
+            </button>
+          </div>
         }
       />
 
@@ -218,18 +224,18 @@ export function ReportsPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <KpiCard
-              label="GMV"
-              value={naira(summary?.gmv || 0)}
-              hint={`${summary?.completed || 0} completed trips`}
-              icon={Wallet}
+              label="Platform revenue"
+              value={naira(summary?.platformRevenue || 0)}
+              hint={`${summary?.commissionPercent ?? 15}% of net fare · ${summary?.completed || 0} completed`}
+              icon={Coins}
               tone="teal"
             />
             <KpiCard
-              label="Completed"
-              value={summary?.completed || 0}
-              hint={`Avg fare ${naira(summary?.avgFare || 0)}`}
-              icon={MapPinned}
-              tone="amber"
+              label="Passenger GMV"
+              value={naira(summary?.gmv || 0)}
+              hint={`Avg fare ${naira(summary?.avgFare || 0)} · VAT ${naira(summary?.tax || 0)}`}
+              icon={Wallet}
+              tone="slate"
             />
             <KpiCard
               label="Cancel rate"
@@ -239,11 +245,11 @@ export function ReportsPage() {
               tone="rose"
             />
             <KpiCard
-              label="Wallet volume"
-              value={naira(summary?.walletVolume || 0)}
-              hint="Completed wallet txs in range"
-              icon={Wallet}
-              tone="slate"
+              label="Rider share"
+              value={naira(summary?.driverShare || 0)}
+              hint="Net fare minus platform commission"
+              icon={Bike}
+              tone="amber"
             />
           </div>
 
@@ -266,12 +272,16 @@ export function ReportsPage() {
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Revenue by day" subtitle="Completed trip totals">
+            <ChartCard title="Revenue by day" subtitle="Passenger GMV vs platform commission">
               <ResponsiveContainer width="100%" height={240}>
                 <AreaChart data={revenueSeries}>
                   <defs>
                     <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={TEAL} stopOpacity={0.35} />
+                      <stop offset="0%" stopColor={SLATE} stopOpacity={0.28} />
+                      <stop offset="100%" stopColor={SLATE} stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="commFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={TEAL} stopOpacity={0.4} />
                       <stop offset="100%" stopColor={TEAL} stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
@@ -279,13 +289,22 @@ export function ReportsPage() {
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip formatter={(v) => naira(Number(v ?? 0))} />
+                  <Legend />
                   <Area
                     type="monotone"
                     dataKey="revenue"
-                    name="Revenue"
-                    stroke={TEAL}
+                    name="GMV"
+                    stroke={SLATE}
                     fill="url(#revFill)"
                     strokeWidth={2}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="platformRevenue"
+                    name="Commission"
+                    stroke={TEAL}
+                    fill="url(#commFill)"
+                    strokeWidth={2.2}
                   />
                 </AreaChart>
               </ResponsiveContainer>

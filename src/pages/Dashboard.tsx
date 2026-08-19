@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   Bike,
   Banknote,
+  Coins,
   Headphones,
   MapPinned,
   RefreshCw,
@@ -245,6 +246,8 @@ export function DashboardPage() {
   const revenueSeries = series?.revenueInRange || series?.revenueLast7Days || [];
 
   const gmv = stats?.gmvInRange ?? stats?.gmvLast7Days ?? 0;
+  const platformRevenue =
+    stats?.platformRevenueInRange ?? stats?.platformRevenueLast7Days ?? 0;
   const completed = stats?.completedInRange ?? stats?.completedLast7Days ?? 0;
   const cancelled = stats?.cancelledInRange ?? stats?.cancelledLast7Days ?? 0;
   const tripsCreated = stats?.tripsInRange ?? stats?.tripsLast7Days ?? 0;
@@ -369,12 +372,21 @@ export function DashboardPage() {
         <>
           <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <KpiCard
-              label="GMV"
+              label="Platform revenue"
+              value={naira(platformRevenue)}
+              trend={stats.platformRevenueChange}
+              hint={`Ride commission only · today ${naira(stats.platformRevenueToday || 0)} · all-time ${naira(stats.platformRevenueAllTime || 0)}`}
+              icon={Coins}
+              tone="teal"
+              href="/revenue"
+            />
+            <KpiCard
+              label="Passenger GMV"
               value={naira(gmv)}
               trend={stats.gmvChange}
               hint={`Avg ${naira(avgFare)} · today ${naira(stats.gmvToday)} · all-time ${naira(stats.gmvAllTime ?? 0)}`}
               icon={Wallet}
-              tone="teal"
+              tone="slate"
             />
             <KpiCard
               label="Completed trips"
@@ -525,9 +537,9 @@ export function DashboardPage() {
             <ChartCard
               className="xl:col-span-2"
               title="Revenue"
-              subtitle={`Completed trip GMV by day · ${rangeLabel}`}
+              subtitle={`Passenger GMV vs platform commission · ${rangeLabel}`}
             >
-              {revenueSeries.every((d) => !d.revenue) ? (
+              {revenueSeries.every((d) => !d.revenue && !d.platformRevenue) ? (
                 <EmptyChart label="No completed revenue in this range" />
               ) : (
                 <ResponsiveContainer width="100%" height={240}>
@@ -545,9 +557,14 @@ export function DashboardPage() {
                     />
                     <Tooltip
                       contentStyle={tooltipStyle}
-                      formatter={(value) => [naira(Number(value || 0)), 'GMV']}
+                      formatter={(value, name) => [
+                        naira(Number(value || 0)),
+                        name === 'platformRevenue' ? 'Commission' : 'GMV',
+                      ]}
                     />
-                    <Bar dataKey="revenue" name="GMV" fill={TEAL} radius={[10, 10, 4, 4]} maxBarSize={42} />
+                    <Legend wrapperStyle={{ fontSize: 12, fontWeight: 600 }} />
+                    <Bar dataKey="revenue" name="GMV" fill={SLATE} radius={[10, 10, 4, 4]} maxBarSize={28} />
+                    <Bar dataKey="platformRevenue" name="Commission" fill={TEAL} radius={[10, 10, 4, 4]} maxBarSize={28} />
                   </BarChart>
                 </ResponsiveContainer>
               )}

@@ -23,6 +23,7 @@ import { WalletPage } from './pages/Wallet';
 import { WalletDetailPage } from './pages/WalletDetail';
 import { PromosPage } from './pages/Promos';
 import { ReportsPage } from './pages/Reports';
+import { RevenuePage } from './pages/Revenue';
 import { PayoutsPage } from './pages/Payouts';
 import { StaffPage } from './pages/Staff';
 import { BroadcastsPage } from './pages/Broadcasts';
@@ -79,6 +80,7 @@ export default function App() {
               <Route path="/wallets/:userId" element={<WalletDetailPage />} />
               <Route path="/payouts" element={<PayoutsPage />} />
               <Route path="/promos" element={<PromosPage />} />
+              <Route path="/revenue" element={<RevenuePage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
