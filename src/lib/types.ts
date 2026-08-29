@@ -14,7 +14,7 @@ function resolveApiUrl(): string {
     return PRODUCTION_API_URL;
   }
 
-  return fromEnv || 'http://localhost:34567';
+  return fromEnv || PRODUCTION_API_URL;
 }
 
 export const API_URL = resolveApiUrl();
@@ -28,11 +28,13 @@ export const ROLE = {
   driver: 4,
   admin: 8,
   superAdmin: 16,
+  kycOfficer: 32,
 } as const;
 
 export function roleLabel(role: number) {
   if (role & ROLE.superAdmin) return 'Super Admin';
   if (role & ROLE.admin) return 'Admin';
+  if (role & ROLE.kycOfficer) return 'KYC Officer';
   if (role & ROLE.driver) return 'Driver';
   if (role & ROLE.passenger) return 'Passenger';
   return `Role ${role}`;
@@ -40,6 +42,27 @@ export function roleLabel(role: number) {
 
 export function isAdminRole(role: number) {
   return Boolean(role & (ROLE.admin | ROLE.superAdmin));
+}
+
+/** Can sign into the admin panel (admins + KYC officers). */
+export function isStaffRole(role: number) {
+  return Boolean(role & (ROLE.admin | ROLE.superAdmin | ROLE.kycOfficer));
+}
+
+export function isKycOfficerOnly(role: number) {
+  return (
+    Boolean(role & ROLE.kycOfficer) &&
+    !Boolean(role & (ROLE.admin | ROLE.superAdmin))
+  );
+}
+
+export function canAccessAdminPath(role: number, path: string) {
+  if (isAdminRole(role)) return true;
+  if (!isKycOfficerOnly(role)) return false;
+  const allowed = ['/kyc', '/riders'];
+  return allowed.some(
+    (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+  );
 }
 
 export type AdminUser = {
@@ -107,6 +130,12 @@ export type RiderKycPayload = {
   reviewedBy?: string | null;
   rejectReason?: string | null;
   idNumber?: string | null;
+  address?: {
+    value?: string | null;
+    verified?: boolean;
+    verifiedAt?: string | null;
+    verifiedBy?: string | null;
+  };
   kin: {
     name?: string | null;
     phone?: string | null;
@@ -143,14 +172,21 @@ export type RiderKycPayload = {
       type: string;
       url: string;
       originalName?: string | null;
+      uploadedBy?: string;
     }
   >;
+  selfieLocked?: boolean;
   checklist: {
     complete: boolean;
     missing: string[];
     required: Record<string, boolean>;
     ownershipType?: string | null;
     phoneOwnership?: string | null;
+  };
+  approvalChecklist?: {
+    complete: boolean;
+    missing: string[];
+    required: Record<string, boolean>;
   };
 };
 

@@ -19,8 +19,8 @@ export function CashFlagsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Cash flags"
-        description="Riders taken offline until unremitted cash is recorded. Amber rows need remittance."
+        title="Commission flags"
+        description="Riders taken offline until cash-trip commission is paid (wallet or remittance desk)."
         actions={
           <Link to="/riders?cash=flagged" className="ui-btn ui-btn-ghost">
             All riders
@@ -35,7 +35,7 @@ export function CashFlagsPage() {
           <thead>
             <tr>
               <th>Rider</th>
-              <th>Unremitted</th>
+              <th>Commission owed</th>
               <th>Why flagged</th>
               <th></th>
             </tr>
@@ -44,7 +44,7 @@ export function CashFlagsPage() {
             {isLoading ? (
               <tr>
                 <td className="text-muted" colSpan={4}>
-                  Loading cash flags…
+                  Loading commission flags…
                 </td>
               </tr>
             ) : (data || []).length === 0 ? (
@@ -77,7 +77,7 @@ export function CashFlagsPage() {
                       Flagged
                     </span>
                     <div className="mt-1 text-xs font-medium text-muted">
-                      {rider.cash?.reasonLabel || 'Needs remittance'}
+                      {rider.cash?.reasonLabel || 'Needs commission payment'}
                     </div>
                   </td>
                   <td>
@@ -85,7 +85,7 @@ export function CashFlagsPage() {
                       to={`/riders/${rider.id}`}
                       className="ui-btn ui-btn-primary !px-2.5 !py-1.5 text-xs"
                     >
-                      Record remittance
+                      Record payment
                     </Link>
                   </td>
                 </tr>

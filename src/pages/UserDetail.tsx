@@ -7,6 +7,7 @@ import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
 import { ROLE, roleLabel } from '../lib/types';
+import { rideTypeLabel } from '../lib/vehicle';
 import { useAuth } from '../auth/AuthContext';
 
 function naira(value: number) {
@@ -503,8 +504,8 @@ export function UserDetailPage() {
                       >
                         #{trip.id}
                       </Link>
-                      <div className="text-xs font-medium capitalize text-muted">
-                        {trip.rideType || 'standard'} ·{' '}
+                      <div className="text-xs font-medium text-muted">
+                        {rideTypeLabel(trip.rideType)} ·{' '}
                         {trip.paymentMethod || 'cash'}
                       </div>
                     </td>

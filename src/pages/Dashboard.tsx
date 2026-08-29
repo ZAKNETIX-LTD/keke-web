@@ -36,15 +36,16 @@ import { adminApi } from '../api/admin';
 import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
+import { rideTypeLabel } from '../lib/vehicle';
 
-const TEAL = '#0d9488';
-const AMBER = '#f59e0b';
+const TEAL = '#10A090';
+const AMBER = '#E8AC0C';
 const ROSE = '#f43f5e';
 const SLATE = '#94a3b8';
 const CYAN = '#06b6d4';
 const INDIGO = '#6366f1';
 
-const PIE_COLORS = [TEAL, AMBER, ROSE, CYAN, INDIGO, SLATE, '#14b8a6', '#fb7185'];
+const PIE_COLORS = [TEAL, AMBER, ROSE, CYAN, INDIGO, SLATE, '#10A090', '#fb7185'];
 
 function toInputDate(d: Date) {
   const y = d.getFullYear();
@@ -282,7 +283,10 @@ export function DashboardPage() {
 
   const pipeline = breakdowns?.pipeline || [];
   const payment = breakdowns?.paymentMethod || [];
-  const rideTypes = breakdowns?.rideType || [];
+  const rideTypes = (breakdowns?.rideType || []).map((row) => ({
+    ...row,
+    name: rideTypeLabel(row.name),
+  }));
 
   return (
     <div className="space-y-6">
@@ -771,8 +775,8 @@ export function DashboardPage() {
                             >
                               #{trip.id}
                             </Link>
-                            <div className="text-xs font-medium capitalize text-muted">
-                              {trip.rideType || 'standard'}
+                            <div className="text-xs font-medium text-muted">
+                              {rideTypeLabel(trip.rideType)}
                             </div>
                           </td>
                           <td>
@@ -848,8 +852,8 @@ export function DashboardPage() {
                           >
                             #{trip.id}
                           </Link>
-                          <div className="text-xs font-medium capitalize text-muted">
-                            {trip.rideType || 'standard'}
+                          <div className="text-xs font-medium text-muted">
+                            {rideTypeLabel(trip.rideType)}
                           </div>
                         </td>
                         <td>

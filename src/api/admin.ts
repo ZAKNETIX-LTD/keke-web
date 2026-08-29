@@ -170,6 +170,21 @@ export const adminApi = {
             createdAt?: string;
           }>;
           tickets: SupportTicket[];
+          ledger?: Array<{
+            id: string;
+            type: string;
+            amount: number;
+            walletDelta: number;
+            cashHeldDelta: number;
+            walletBalanceAfter?: number | null;
+            cashHeldAfter?: number | null;
+            tripId?: string | null;
+            reference?: string | null;
+            description: string;
+            note?: string | null;
+            status: string;
+            createdAt?: string;
+          }>;
         },
     );
   },
@@ -665,6 +680,7 @@ export type PlatformSettings = {
     standard: RideRate;
     shared: RideRate;
     express: RideRate;
+    car: RideRate;
   };
 };
 

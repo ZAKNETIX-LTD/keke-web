@@ -1,5 +1,5 @@
 import { api, storeAuth } from './client';
-import { isAdminRole, type AdminUser } from '../lib/types';
+import { isStaffRole, type AdminUser } from '../lib/types';
 
 export async function login(identifier: string, password: string) {
   const value = identifier.trim();
@@ -9,8 +9,8 @@ export async function login(identifier: string, password: string) {
     password,
   });
   const role = Number(data.role ?? data.user?.role ?? 0);
-  if (!isAdminRole(role)) {
-    throw new Error('Admin access only. This account is not an admin.');
+  if (!isStaffRole(role)) {
+    throw new Error('Staff access only. This account cannot use the admin app.');
   }
   const token = data.accessToken || data.token;
   storeAuth(token, data.user);

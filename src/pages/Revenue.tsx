@@ -17,7 +17,7 @@ import { adminApi } from '../api/admin';
 import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 
-const TEAL = '#0d9488';
+const TEAL = '#10A090';
 const SLATE = '#94a3b8';
 
 function toInputDate(d: Date) {
@@ -79,7 +79,7 @@ export function RevenuePage() {
     <div className="space-y-6">
       <PageHeader
         title="Platform revenue"
-        description="TriGo’s take from completed rides only — ride commission, not passenger GMV or VAT."
+        description="Fastigo’s take from completed rides only — ride commission, not passenger GMV or VAT."
         actions={
           <button
             type="button"

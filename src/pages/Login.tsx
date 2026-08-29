@@ -32,7 +32,7 @@ export function LoginPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <section className="relative hidden overflow-hidden lg:block">
-        <div className="absolute inset-0 bg-[linear-gradient(155deg,#0f766e_0%,#0d9488_38%,#115e59_72%,#0b3f3a_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(155deg,#0D8679_0%,#10A090_38%,#0A6B61_72%,#1D283A_100%)]" />
         <div className="absolute -left-24 top-24 h-80 w-80 rounded-full bg-amber/25 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-trigo-glow/20 blur-3xl" />
         <div
@@ -45,15 +45,22 @@ export function LoginPage() {
         />
         <div className="relative z-10 flex h-full flex-col justify-between p-12 text-white">
           <div>
-            <div className="text-xs font-bold uppercase tracking-[0.3em] text-trigo-glow">
-              TriGo
+            <div className="flex items-center gap-3">
+              <img
+                src="/brand/mark.png"
+                alt=""
+                className="h-9 w-9 object-contain"
+              />
+              <div className="text-xs font-bold uppercase tracking-[0.3em] text-trigo-glow">
+                Fastigo
+              </div>
             </div>
             <h1 className="mt-8 max-w-md text-5xl font-extrabold leading-[1.05] tracking-[-0.05em]">
               Run the city
               <span className="block text-amber">from one desk.</span>
             </h1>
             <p className="mt-5 max-w-sm text-base font-medium text-white/70">
-              Trips, safety, wallets, and people — live ops for Abuja keke
+              Trips, safety, wallets, and people — live ops for keke and car
               marketplace.
             </p>
           </div>
@@ -71,13 +78,13 @@ export function LoginPage() {
       </section>
 
       <section className="relative flex items-center justify-center px-6 py-12">
-        <div className="absolute inset-0 bg-[radial-gradient(700px_300px_at_70%_10%,rgba(13,148,136,0.1),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(700px_300px_at_70%_10%,rgba(16,160,144,0.1),transparent)]" />
         <form
           onSubmit={onSubmit}
           className="animate-rise ui-panel relative w-full max-w-md p-8 md:p-10"
         >
           <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-trigo lg:hidden">
-            TriGo
+            Fastigo
           </div>
           <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.04em]">
             Admin sign in

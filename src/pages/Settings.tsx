@@ -5,8 +5,9 @@ import { adminApi, type PlatformSettings, type RideRate } from '../api/admin';
 import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 import { useAuth } from '../auth/AuthContext';
+import { RIDE_RATE_LABELS } from '../lib/vehicle';
 
-const RATE_TYPES = ['standard', 'shared', 'express'] as const;
+const RATE_TYPES = ['standard', 'shared', 'express', 'car'] as const;
 
 export function SettingsPage() {
   const { user, setUser } = useAuth();
@@ -85,7 +86,12 @@ export function SettingsPage() {
         rideRates: {
           ...prev.rideRates,
           [type]: {
-            ...prev.rideRates[type],
+            ...(prev.rideRates[type] || {
+              base: 0,
+              perKm: 0,
+              perMin: 0,
+              multiplier: 1,
+            }),
             [field]: Number(value),
           },
         },
@@ -97,7 +103,7 @@ export function SettingsPage() {
     <div className="space-y-8">
       <PageHeader
         title="Settings"
-        description="Your admin profile and TriGo platform configuration."
+        description="Your admin profile and Fastigo platform configuration."
       />
 
       {message ? <Flash>{message}</Flash> : null}
@@ -319,10 +325,12 @@ export function SettingsPage() {
               </div>
 
               <p className="text-xs font-medium text-muted">
-                Busy riders (12+ trips in 7 days or 5+ today) can keep working
-                after ₦5,000 — admin is notified. Quiet or idle riders get
-                taken offline at ₦5,000 until remittance. Everyone is flagged
-                at the hard cap.
+                cashHeld tracks unpaid platform commission from cash trips (Uber /
+                Bolt style), not the full passenger fare. Busy riders (12+ trips in
+                7 days or 5+ today) can keep working after ₦5,000 — admin is
+                notified. Quiet or idle riders get taken offline at ₦5,000 until
+                paid. Everyone is flagged at the hard cap. Wallet trip earnings
+                auto-offset this debt.
               </p>
 
               <div>
@@ -335,8 +343,8 @@ export function SettingsPage() {
                       key={type}
                       className="rounded-2xl border border-line/80 bg-canvas/60 p-4"
                     >
-                      <div className="mb-3 text-sm font-extrabold capitalize tracking-wide">
-                        {type}
+                      <div className="mb-3 text-sm font-extrabold tracking-wide">
+                        {RIDE_RATE_LABELS[type] || type}
                       </div>
                       <div className="grid gap-2 sm:grid-cols-4">
                         {(
@@ -353,7 +361,7 @@ export function SettingsPage() {
                               className="ui-input mt-1 !rounded-xl !px-2.5 !py-2"
                               type="number"
                               step={field === 'multiplier' ? '0.05' : '1'}
-                              value={settings.rideRates[type][field]}
+                              value={settings.rideRates[type]?.[field] ?? ''}
                               onChange={(e) =>
                                 updateRate(type, field, e.target.value)
                               }

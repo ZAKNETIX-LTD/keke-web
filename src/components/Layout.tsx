@@ -27,7 +27,10 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { NotificationsBell } from './NotificationsBell';
 import { useAdminRealtime } from '../hooks/useAdminRealtime';
-import { roleLabel } from '../lib/types';
+import {
+  isKycOfficerOnly,
+  roleLabel,
+} from '../lib/types';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '../api/admin';
 
@@ -37,12 +40,26 @@ const NAV: {
   end?: boolean;
   icon: LucideIcon;
   group?: string;
+  /** When true, KYC officers can see this item. */
+  kycOfficer?: boolean;
 }[] = [
   { to: '/', label: 'Overview', end: true, icon: LayoutDashboard, group: 'Ops' },
   { to: '/users', label: 'Users', icon: Users, group: 'Ops' },
   { to: '/staff', label: 'Staff', icon: Shield, group: 'Ops' },
-  { to: '/riders', label: 'Riders', icon: Bike, group: 'Ops' },
-  { to: '/kyc', label: 'KYC queue', icon: FileCheck2, group: 'Ops' },
+  {
+    to: '/riders',
+    label: 'Riders',
+    icon: Bike,
+    group: 'Ops',
+    kycOfficer: true,
+  },
+  {
+    to: '/kyc',
+    label: 'KYC queue',
+    icon: FileCheck2,
+    group: 'Ops',
+    kycOfficer: true,
+  },
   { to: '/cash-flags', label: 'Cash flags', icon: CircleAlert, group: 'Ops' },
   { to: '/live-riders', label: 'Live map', icon: Navigation, group: 'Ops' },
   { to: '/trips', label: 'Trips', icon: MapPinned, group: 'Ops' },
@@ -54,7 +71,12 @@ const NAV: {
   { to: '/revenue', label: 'Revenue', icon: Coins, group: 'Money' },
   { to: '/promos', label: 'Promos', icon: Percent, group: 'Money' },
   { to: '/reports', label: 'Reports', icon: BarChart3, group: 'Money' },
-  { to: '/settings', label: 'Settings', icon: Settings, group: 'Money' },
+  {
+    to: '/settings',
+    label: 'Settings',
+    icon: Settings,
+    group: 'Money',
+  },
 ];
 
 const NAV_GROUPS = NAV.reduce<
@@ -70,13 +92,20 @@ const NAV_GROUPS = NAV.reduce<
 function SidebarNav({
   onNavigate,
   badges,
+  officerOnly,
 }: {
   onNavigate?: () => void;
   badges?: Record<string, number>;
+  officerOnly?: boolean;
 }) {
+  const groups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !officerOnly || item.kycOfficer),
+  })).filter((group) => group.items.length > 0);
+
   return (
     <nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-3 pb-4">
-      {NAV_GROUPS.map((group) => (
+      {groups.map((group) => (
         <div key={group.name}>
           <div className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-muted/80">
             {group.name}
@@ -95,7 +124,7 @@ function SidebarNav({
                     [
                       'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-colors duration-150',
                       isActive
-                        ? 'bg-trigo text-white shadow-[0_8px_20px_rgba(13,148,136,0.28)]'
+                        ? 'bg-trigo text-white shadow-[0_8px_20px_rgba(16,160,144,0.28)]'
                         : item.to === '/cash-flags' && badge > 0
                           ? 'bg-amber-50 text-amber-900 hover:bg-amber-100'
                           : item.to === '/sos' && badge > 0
@@ -149,12 +178,14 @@ function SidebarNav({
 function Brand() {
   return (
     <div className="flex items-center gap-3 px-5 pb-5 pt-6">
-      <div className="grid h-10 w-10 place-items-center rounded-xl bg-trigo text-white shadow-[0_8px_18px_rgba(13,148,136,0.3)]">
-        <MapPinned size={18} strokeWidth={2.4} />
-      </div>
+      <img
+        src="/brand/mark.png"
+        alt="Fastigo"
+        className="h-10 w-10 rounded-xl object-contain shadow-[0_8px_18px_rgba(16,160,144,0.28)]"
+      />
       <div className="min-w-0">
-        <div className="text-base font-extrabold tracking-[-0.04em] text-ink">
-          TriGo
+        <div className="text-base font-extrabold uppercase tracking-[0.08em] text-ink">
+          Fastigo
         </div>
         <div className="text-[11px] font-semibold text-muted">Ops console</div>
       </div>
@@ -226,6 +257,7 @@ export function Layout() {
     .slice(0, 2)
     .toUpperCase();
   const role = roleLabel(Number(user?.role || 0));
+  const officerOnly = isKycOfficerOnly(Number(user?.role || 0));
 
   useEffect(() => {
     setMobileOpen(false);
@@ -234,7 +266,11 @@ export function Layout() {
   const sidebar = (
     <div className="flex h-full flex-col">
       <Brand />
-      <SidebarNav onNavigate={() => setMobileOpen(false)} badges={badges} />
+      <SidebarNav
+        onNavigate={() => setMobileOpen(false)}
+        badges={badges}
+        officerOnly={officerOnly}
+      />
       <UserCard name={name} initials={initials} role={role} onLogout={logout} />
     </div>
   );
@@ -278,7 +314,7 @@ export function Layout() {
             </button>
             <div className="min-w-0 flex-1">
               <div className="text-sm font-extrabold tracking-[-0.03em]">
-                TriGo Ops
+                Fastigo Ops
               </div>
               <div className="truncate text-[11px] font-medium text-muted">
                 {name}
@@ -287,7 +323,7 @@ export function Layout() {
             <NotificationsBell />
           </header>
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(700px_180px_at_20%_0%,rgba(13,148,136,0.1),transparent)]" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(700px_180px_at_20%_0%,rgba(16,160,144,0.1),transparent)]" />
           <div className="relative z-10 hidden items-center justify-end gap-3 px-6 pt-4 md:flex lg:px-8">
             <NotificationsBell />
           </div>

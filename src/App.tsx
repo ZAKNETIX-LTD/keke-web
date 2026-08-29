@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { Layout } from './components/Layout';
@@ -27,6 +27,10 @@ import { RevenuePage } from './pages/Revenue';
 import { PayoutsPage } from './pages/Payouts';
 import { StaffPage } from './pages/Staff';
 import { BroadcastsPage } from './pages/Broadcasts';
+import {
+  canAccessAdminPath,
+  isKycOfficerOnly,
+} from './lib/types';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +50,24 @@ function Protected({ children }: { children: React.ReactNode }) {
   return children;
 }
 
+function RoleGate({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const location = useLocation();
+  const role = Number(user?.role || 0);
+  if (isKycOfficerOnly(role) && !canAccessAdminPath(role, location.pathname)) {
+    return <Navigate to="/kyc" replace />;
+  }
+  return children;
+}
+
+function OfficerHome() {
+  const { user } = useAuth();
+  if (isKycOfficerOnly(Number(user?.role || 0))) {
+    return <Navigate to="/kyc" replace />;
+  }
+  return <DashboardPage />;
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -60,29 +82,37 @@ export default function App() {
                 </Protected>
               }
             >
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/users" element={<UsersPage />} />
-              <Route path="/users/:id" element={<UserDetailPage />} />
-              <Route path="/staff" element={<StaffPage />} />
-              <Route path="/riders" element={<RidersPage />} />
-              <Route path="/riders/:id" element={<RiderDetailPage />} />
-              <Route path="/kyc" element={<KycQueuePage />} />
-              <Route path="/cash-flags" element={<CashFlagsPage />} />
-              <Route path="/live-riders" element={<LiveRidersPage />} />
-              <Route path="/trips" element={<TripsPage />} />
-              <Route path="/trips/:id" element={<TripDetailPage />} />
-              <Route path="/sos" element={<SosPage />} />
-              <Route path="/sos/:id" element={<SosDetailPage />} />
-              <Route path="/tickets" element={<TicketsPage />} />
-              <Route path="/tickets/:id" element={<TicketDetailPage />} />
-              <Route path="/broadcasts" element={<BroadcastsPage />} />
-              <Route path="/wallets" element={<WalletPage />} />
-              <Route path="/wallets/:userId" element={<WalletDetailPage />} />
-              <Route path="/payouts" element={<PayoutsPage />} />
-              <Route path="/promos" element={<PromosPage />} />
-              <Route path="/revenue" element={<RevenuePage />} />
-              <Route path="/reports" element={<ReportsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
+              <Route
+                element={
+                  <RoleGate>
+                    <Outlet />
+                  </RoleGate>
+                }
+              >
+                <Route path="/" element={<OfficerHome />} />
+                <Route path="/users" element={<UsersPage />} />
+                <Route path="/users/:id" element={<UserDetailPage />} />
+                <Route path="/staff" element={<StaffPage />} />
+                <Route path="/riders" element={<RidersPage />} />
+                <Route path="/riders/:id" element={<RiderDetailPage />} />
+                <Route path="/kyc" element={<KycQueuePage />} />
+                <Route path="/cash-flags" element={<CashFlagsPage />} />
+                <Route path="/live-riders" element={<LiveRidersPage />} />
+                <Route path="/trips" element={<TripsPage />} />
+                <Route path="/trips/:id" element={<TripDetailPage />} />
+                <Route path="/sos" element={<SosPage />} />
+                <Route path="/sos/:id" element={<SosDetailPage />} />
+                <Route path="/tickets" element={<TicketsPage />} />
+                <Route path="/tickets/:id" element={<TicketDetailPage />} />
+                <Route path="/broadcasts" element={<BroadcastsPage />} />
+                <Route path="/wallets" element={<WalletPage />} />
+                <Route path="/wallets/:userId" element={<WalletDetailPage />} />
+                <Route path="/payouts" element={<PayoutsPage />} />
+                <Route path="/promos" element={<PromosPage />} />
+                <Route path="/revenue" element={<RevenuePage />} />
+                <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

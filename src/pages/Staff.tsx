@@ -90,7 +90,7 @@ export function StaffPage() {
     <div className="space-y-6">
       <PageHeader
         title="Staff"
-        description="Admin and Super Admin accounts for the ops console."
+        description="Admin, Super Admin, and KYC Officer accounts for the ops console."
         actions={
           <button
             type="button"
@@ -150,6 +150,7 @@ export function StaffPage() {
               onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
             >
               <option value={ROLE.admin}>Admin</option>
+              <option value={ROLE.kycOfficer}>KYC Officer</option>
               {isSuper ? (
                 <option value={ROLE.superAdmin}>Super Admin</option>
               ) : null}

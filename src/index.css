@@ -1,24 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --color-trigo: #0d9488;
-  --color-trigo-hover: #0f766e;
-  --color-trigo-deep: #115e59;
-  --color-trigo-muted: #ccfbf1;
-  --color-trigo-glow: #5eead4;
-  --color-amber: #f59e0b;
-  --color-amber-soft: #fef3c7;
-  --color-ink: #0b1220;
+  /* Fastigo logo: teal #10A090 · gold #E8AC0C · navy #1D283A */
+  --color-trigo: #10a090;
+  --color-trigo-hover: #0d8679;
+  --color-trigo-deep: #0a6b61;
+  --color-trigo-muted: #e7f8f6;
+  --color-trigo-glow: #4fc4b7;
+  --color-amber: #e8ac0c;
+  --color-amber-soft: #fff8e5;
+  --color-ink: #1d283a;
   --color-muted: #64748b;
   --color-line: #e2e8f0;
   --color-panel: #ffffff;
-  --color-canvas: #f3f7f6;
+  --color-canvas: #f7f9fb;
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
-  --shadow-lift: 0 18px 50px rgba(13, 148, 136, 0.12);
+  --shadow-soft: 0 10px 30px rgba(29, 40, 58, 0.06);
+  --shadow-lift: 0 18px 50px rgba(16, 160, 144, 0.16);
   --radius-panel: 1.5rem;
 }
 
@@ -33,8 +34,8 @@ body {
   font-family: var(--font-sans);
   color: var(--color-ink);
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(13, 148, 136, 0.16), transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, rgba(245, 158, 11, 0.12), transparent 50%),
+    radial-gradient(1200px 600px at 10% -10%, rgba(16, 160, 144, 0.16), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(232, 172, 12, 0.12), transparent 50%),
     linear-gradient(180deg, #f7fbfa 0%, #eef5f3 100%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
@@ -115,7 +116,7 @@ body {
 
 .ui-input:focus {
   border-color: var(--color-trigo);
-  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.12);
+  box-shadow: 0 0 0 4px rgba(16, 160, 144, 0.14);
 }
 
 .ui-btn {
@@ -135,12 +136,22 @@ body {
 }
 
 .ui-btn-primary {
-  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 55%, #0f766e 100%);
+  background: linear-gradient(135deg, #24b3a4 0%, #10a090 55%, #0d8679 100%);
   color: #fff;
-  box-shadow: 0 10px 24px rgba(13, 148, 136, 0.28);
+  box-shadow: 0 10px 24px rgba(16, 160, 144, 0.28);
 }
 
 .ui-btn-primary:hover {
+  filter: brightness(1.03);
+}
+
+.ui-btn-accent {
+  background: linear-gradient(135deg, #edb71a 0%, #e8ac0c 55%, #c9940a 100%);
+  color: #1d283a;
+  box-shadow: 0 10px 24px rgba(232, 172, 12, 0.28);
+}
+
+.ui-btn-accent:hover {
   filter: brightness(1.03);
 }
 
@@ -200,7 +211,7 @@ body {
 }
 
 .ui-table tbody tr:hover {
-  background: rgba(204, 251, 241, 0.35);
+  background: rgba(231, 248, 246, 0.7);
 }
 
 .skeleton {

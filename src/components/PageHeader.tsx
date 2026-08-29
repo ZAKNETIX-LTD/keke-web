@@ -1,5 +1,5 @@
 export function PageHeader({
-  eyebrow = 'TriGo Ops',
+  eyebrow = 'Fastigo Ops',
   title,
   description,
   actions,

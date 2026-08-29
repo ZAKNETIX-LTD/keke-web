@@ -8,7 +8,7 @@ import React, {
 
 import { clearAuth, getStoredToken, getStoredUser, storeAuth } from '../api/client';
 import { login as loginRequest } from '../api/auth';
-import { isAdminRole, type AdminUser } from '../lib/types';
+import { isStaffRole, type AdminUser } from '../lib/types';
 
 type AuthContextValue = {
   user: AdminUser | null;
@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(() => {
     const stored = getStoredUser() as AdminUser | null;
-    if (stored && isAdminRole(Number(stored.role))) return stored;
+    if (stored && isStaffRole(Number(stored.role))) return stored;
     return null;
   });
   const [token, setToken] = useState<string | null>(() => getStoredToken());

@@ -6,6 +6,7 @@ import { adminApi } from '../api/admin';
 import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
+import { rideTypeLabel } from '../lib/vehicle';
 
 const STATUSES = [
   'all',
@@ -141,8 +142,8 @@ export function TripsPage() {
                     >
                       #{trip.id}
                     </Link>
-                    <div className="text-xs font-medium capitalize text-muted">
-                      {trip.rideType || 'standard'}
+                    <div className="text-xs font-medium text-muted">
+                      {rideTypeLabel(trip.rideType)}
                     </div>
                   </td>
                   <td>

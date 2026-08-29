@@ -6,6 +6,13 @@ import { adminApi } from '../api/admin';
 import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
+import {
+  toApiVehicleType,
+  toAdminVehicleCategory,
+  vehicleTypeLabel,
+} from '../lib/vehicle';
+import { isKycOfficerOnly } from '../lib/types';
+import { useAuth } from '../auth/AuthContext';
 
 const emptyForm = {
   firstname: '',
@@ -16,7 +23,7 @@ const emptyForm = {
   password: '',
   name: '',
   status: 'active',
-  vehicleType: 'standard',
+  vehicleType: 'keke',
   vehicleColor: 'Yellow',
   plateNumber: '',
   vehicleModel: 'TVS King',
@@ -25,6 +32,8 @@ const emptyForm = {
 export function RidersPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { user: me } = useAuth();
+  const officerOnly = isKycOfficerOnly(Number(me?.role || 0));
   const [searchParams] = useSearchParams();
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('all');
@@ -33,6 +42,7 @@ export function RidersPage() {
     searchParams.get('kyc') || 'all',
   );
   const [cash, setCash] = useState(searchParams.get('cash') || 'all');
+  const [vehicleFilter, setVehicleFilter] = useState('all');
   const [message, setMessage] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -53,6 +63,14 @@ export function RidersPage() {
     queryFn: () => adminApi.listRiders(params),
   });
 
+  const riders = useMemo(() => {
+    const list = data || [];
+    if (vehicleFilter === 'all') return list;
+    return list.filter(
+      (rider) => toAdminVehicleCategory(rider.vehicle?.type) === vehicleFilter,
+    );
+  }, [data, vehicleFilter]);
+
   const createMut = useMutation({
     mutationFn: () =>
       adminApi.createRider({
@@ -67,7 +85,7 @@ export function RidersPage() {
           [form.firstname, form.lastname].filter(Boolean).join(' ').trim(),
         status: form.status,
         vehicle: {
-          type: form.vehicleType,
+          type: toApiVehicleType(form.vehicleType),
           color: form.vehicleColor,
           plateNumber: form.plateNumber,
           model: form.vehicleModel,
@@ -103,8 +121,9 @@ export function RidersPage() {
     <div className="space-y-6">
       <PageHeader
         title="Riders"
-        description="Driver accounts and keke profiles. Open a rider for full details."
+        description="Driver accounts and vehicle profiles (keke or car). Open a rider for full details."
         actions={
+          officerOnly ? undefined : (
           <button
             type="button"
             onClick={() => setShowCreate((v) => !v)}
@@ -112,12 +131,13 @@ export function RidersPage() {
           >
             {showCreate ? 'Close form' : 'Create rider'}
           </button>
+          )
         }
       />
 
       {message ? <Flash>{message}</Flash> : null}
 
-      {showCreate ? (
+      {showCreate && !officerOnly ? (
         <form
           className="animate-rise ui-panel grid gap-3 p-5 sm:grid-cols-2"
           onSubmit={(e) => {
@@ -187,13 +207,23 @@ export function RidersPage() {
             <select
               className="ui-input mt-1.5"
               value={form.vehicleType}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, vehicleType: e.target.value }))
-              }
+              onChange={(e) => {
+                const vehicleType = e.target.value;
+                setForm((f) => ({
+                  ...f,
+                  vehicleType,
+                  vehicleModel:
+                    vehicleType === 'car' &&
+                    (f.vehicleModel === 'TVS King' || f.vehicleModel === 'Keke')
+                      ? 'Sedan'
+                      : vehicleType === 'keke' && f.vehicleModel === 'Sedan'
+                        ? 'TVS King'
+                        : f.vehicleModel,
+                }));
+              }}
             >
-              <option value="standard">Standard</option>
-              <option value="shared">Shared</option>
-              <option value="express">Express</option>
+              <option value="keke">Keke</option>
+              <option value="car">Car</option>
             </select>
           </label>
           <label className="text-sm font-bold">
@@ -280,6 +310,15 @@ export function RidersPage() {
           <option value="rejected">Rejected</option>
         </select>
         <select
+          className="ui-input w-auto min-w-[140px]"
+          value={vehicleFilter}
+          onChange={(e) => setVehicleFilter(e.target.value)}
+        >
+          <option value="all">All vehicles</option>
+          <option value="keke">Keke</option>
+          <option value="car">Car</option>
+        </select>
+        <select
           className="ui-input w-auto min-w-[160px]"
           value={cash}
           onChange={(e) => setCash(e.target.value)}
@@ -311,14 +350,14 @@ export function RidersPage() {
                   Loading riders…
                 </td>
               </tr>
-            ) : (data || []).length === 0 ? (
+            ) : riders.length === 0 ? (
               <tr>
                 <td className="text-muted" colSpan={6}>
                   No riders found
                 </td>
               </tr>
             ) : (
-              (data || []).map((rider) => (
+              riders.map((rider) => (
                 <tr
                   key={rider.id}
                   className={
@@ -344,8 +383,8 @@ export function RidersPage() {
                     <div className="text-sm font-semibold">
                       {rider.vehicle?.plateNumber || 'No plate'}
                     </div>
-                    <div className="text-xs font-medium capitalize text-muted">
-                      {rider.vehicle?.type || 'standard'} ·{' '}
+                    <div className="text-xs font-medium text-muted">
+                      {vehicleTypeLabel(rider.vehicle?.type)} ·{' '}
                       {rider.vehicle?.model || '—'}
                       {rider.vehicle?.ownershipType
                         ? ` · ${rider.vehicle.ownershipType}`

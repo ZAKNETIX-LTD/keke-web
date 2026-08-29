@@ -28,9 +28,10 @@ import {
 import { adminApi } from '../api/admin';
 import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
+import { rideTypeLabel } from '../lib/vehicle';
 
-const TEAL = '#0d9488';
-const AMBER = '#f59e0b';
+const TEAL = '#10A090';
+const AMBER = '#E8AC0C';
 const ROSE = '#f43f5e';
 const SLATE = '#94a3b8';
 const CYAN = '#06b6d4';
@@ -340,7 +341,10 @@ export function ReportsPage() {
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
-                    data={data?.breakdowns.rideType || []}
+                    data={(data?.breakdowns.rideType || []).map((row) => ({
+                      ...row,
+                      name: rideTypeLabel(row.name),
+                    }))}
                     dataKey="value"
                     nameKey="name"
                     innerRadius={48}

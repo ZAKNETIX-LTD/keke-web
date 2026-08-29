@@ -17,6 +17,7 @@ import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
 import { TripMap } from '../components/TripMap';
+import { rideTypeLabel, vehicleTypeLabel } from '../lib/vehicle';
 
 const ACTIONS = [
   { status: 'accepted', label: 'Set accepted' },
@@ -181,7 +182,7 @@ export function TripDetailPage() {
               <StatusBadge status={trip.status} />
               {trip.rideType ? (
                 <span className="inline-flex rounded-lg bg-ink/5 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide">
-                  {trip.rideType}
+                  {rideTypeLabel(trip.rideType)}
                 </span>
               ) : null}
             </div>
@@ -433,17 +434,15 @@ export function TripDetailPage() {
                   label="Vehicle"
                   value={
                     driver.vehicle
-                      ? `${driver.vehicle.color || ''} ${driver.vehicle.model || 'keke'} · ${driver.vehicle.plateNumber || 'No plate'}`.trim()
+                      ? `${driver.vehicle.color || ''} ${driver.vehicle.model || vehicleTypeLabel(driver.vehicle.type)} · ${driver.vehicle.plateNumber || 'No plate'}`.trim()
                       : '—'
                   }
                 />
                 <DetailRow
-                  label="Ride type"
-                  value={
-                    <span className="capitalize">
-                      {driver.vehicle?.type || trip.rideType || 'standard'}
-                    </span>
-                  }
+                  label="Vehicle type"
+                  value={vehicleTypeLabel(
+                    driver.vehicle?.type || trip.rideType,
+                  )}
                 />
                 {driver.location ? (
                   <DetailRow

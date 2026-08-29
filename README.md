@@ -1,6 +1,6 @@
-# TriGo Admin
+# Fastigo Admin
 
-Vite + React ops console for TriGo.
+Vite + React ops console for Fastigo.
 
 ## Run
 

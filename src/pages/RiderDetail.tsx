@@ -7,6 +7,11 @@ import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 import { RiderKycPanel } from '../components/RiderKycPanel';
 import { StatusBadge } from '../components/StatusBadge';
+import {
+  rideTypeLabel,
+  toApiVehicleType,
+  vehicleTypeLabel,
+} from '../lib/vehicle';
 
 function naira(value: number) {
   return `₦${Number(value || 0).toLocaleString()}`;
@@ -28,7 +33,7 @@ export function RiderDetailPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [tab, setTab] = useState<
-    'overview' | 'kyc' | 'trips' | 'wallet' | 'ratings' | 'support'
+    'overview' | 'kyc' | 'trips' | 'wallet' | 'ledger' | 'ratings' | 'support'
   >(searchParams.get('tab') === 'kyc' ? 'kyc' : 'overview');
   const [form, setForm] = useState({
     firstname: '',
@@ -39,7 +44,7 @@ export function RiderDetailPage() {
     password: '',
     name: '',
     status: 'active',
-    vehicleType: 'standard',
+    vehicleType: 'keke',
     vehicleColor: 'Yellow',
     plateNumber: '',
     vehicleModel: 'TVS King',
@@ -56,6 +61,7 @@ export function RiderDetailPage() {
   useEffect(() => {
     if (!data?.rider) return;
     const rider = data.rider;
+    const rawType = String(rider.vehicle?.type || 'keke').toLowerCase();
     setForm({
       firstname: rider.user?.firstname || '',
       lastname: rider.user?.lastname || '',
@@ -65,7 +71,7 @@ export function RiderDetailPage() {
       password: '',
       name: rider.name || '',
       status: rider.user?.status || 'active',
-      vehicleType: rider.vehicle?.type || 'standard',
+      vehicleType: rawType === 'car' ? 'car' : 'keke',
       vehicleColor: rider.vehicle?.color || 'Yellow',
       plateNumber: rider.vehicle?.plateNumber || '',
       vehicleModel: rider.vehicle?.model || 'TVS King',
@@ -164,6 +170,10 @@ export function RiderDetailPage() {
       id: 'wallet' as const,
       label: `Wallet (${wallet.transactions?.length || 0})`,
     },
+    {
+      id: 'ledger' as const,
+      label: `Ledger (${data.ledger?.length || 0})`,
+    },
     { id: 'ratings' as const, label: `Ratings (${ratings.count})` },
     {
       id: 'support' as const,
@@ -231,15 +241,16 @@ export function RiderDetailPage() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-amber-800">
-                {cash?.flagged ? 'Needs remittance' : 'Unremitted cash'}
+                {cash?.flagged ? 'Needs commission payment' : 'Commission owed (cash trips)'}
               </div>
               <div className="mt-1 text-2xl font-extrabold tracking-[-0.04em] text-amber-950">
                 {naira(cashHeld)}
               </div>
               <div className="mt-1 text-sm font-semibold text-muted">
                 {cash?.flagged
-                  ? cash.reasonLabel || 'Taken offline until remittance is recorded'
-                  : 'Admin is notified. Account stays live while this rider is still taking trips. Flag them to take them offline now.'}
+                  ? cash.reasonLabel ||
+                    'Taken offline until commission is paid from wallet or remittance desk'
+                  : 'Platform commission from cash trips (not full fare). Wallet earnings auto-clear this. Flag to take offline now.'}
               </div>
               {cash?.flaggedAt ? (
                 <div className="mt-1 text-xs font-medium text-muted">
@@ -270,7 +281,7 @@ export function RiderDetailPage() {
                 Note
                 <input
                   className="ui-input mt-1"
-                  placeholder="Cash desk / reference"
+                  placeholder="Wallet / cash desk / reference"
                   value={remitNote}
                   onChange={(e) => setRemitNote(e.target.value)}
                 />
@@ -481,8 +492,8 @@ export function RiderDetailPage() {
               </div>
               <div>
                 <div className="text-xs font-semibold text-muted">Type</div>
-                <div className="mt-1 text-lg font-extrabold capitalize">
-                  {rider.vehicle?.type || 'standard'}
+                <div className="mt-1 text-lg font-extrabold">
+                  {vehicleTypeLabel(rider.vehicle?.type)}
                 </div>
               </div>
               <div>
@@ -514,7 +525,7 @@ export function RiderDetailPage() {
                   name: form.name,
                   status: form.status,
                   vehicle: {
-                    type: form.vehicleType,
+                    type: toApiVehicleType(form.vehicleType),
                     color: form.vehicleColor,
                     plateNumber: form.plateNumber,
                     model: form.vehicleModel,
@@ -586,9 +597,8 @@ export function RiderDetailPage() {
                     setForm((f) => ({ ...f, vehicleType: e.target.value }))
                   }
                 >
-                  <option value="standard">Standard</option>
-                  <option value="shared">Shared</option>
-                  <option value="express">Express</option>
+                  <option value="keke">Keke</option>
+                  <option value="car">Car</option>
                 </select>
               </label>
               <label className="text-sm font-bold">
@@ -692,8 +702,8 @@ export function RiderDetailPage() {
                       >
                         #{trip.id}
                       </Link>
-                      <div className="text-xs font-medium capitalize text-muted">
-                        {trip.rideType || 'standard'}
+                      <div className="text-xs font-medium text-muted">
+                        {rideTypeLabel(trip.rideType)}
                       </div>
                     </td>
                     <td>
@@ -794,6 +804,83 @@ export function RiderDetailPage() {
                       </td>
                       <td className="text-xs font-medium text-muted">
                         {formatWhen(tx.createdAt)}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : null}
+
+      {tab === 'ledger' ? (
+        <div className="space-y-4">
+          <section className="ui-panel p-5">
+            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-trigo">
+              Rider ledger
+            </div>
+            <p className="mt-2 text-sm font-semibold text-muted">
+              Immutable accountability log: trip earnings, cash-trip commission
+              debt, wallet payments, remittances, promos, and payouts.
+            </p>
+          </section>
+          <div className="ui-table-wrap">
+            <table className="ui-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Wallet Δ</th>
+                  <th>Debt Δ</th>
+                  <th>Debt after</th>
+                  <th>Description</th>
+                  <th>When</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(data.ledger || []).length === 0 ? (
+                  <tr>
+                    <td className="text-muted" colSpan={7}>
+                      No ledger entries yet — new settlements will appear here.
+                    </td>
+                  </tr>
+                ) : (
+                  (data.ledger || []).map((row) => (
+                    <tr key={row.id}>
+                      <td className="font-bold capitalize">
+                        {String(row.type || '').replace(/_/g, ' ')}
+                      </td>
+                      <td className="font-extrabold">{naira(row.amount)}</td>
+                      <td className="font-semibold">
+                        {row.walletDelta > 0
+                          ? `+${naira(row.walletDelta)}`
+                          : row.walletDelta < 0
+                            ? `−${naira(Math.abs(row.walletDelta))}`
+                            : '—'}
+                      </td>
+                      <td className="font-semibold">
+                        {row.cashHeldDelta > 0
+                          ? `+${naira(row.cashHeldDelta)}`
+                          : row.cashHeldDelta < 0
+                            ? `−${naira(Math.abs(row.cashHeldDelta))}`
+                            : '—'}
+                      </td>
+                      <td className="font-semibold">
+                        {row.cashHeldAfter != null
+                          ? naira(row.cashHeldAfter)
+                          : '—'}
+                      </td>
+                      <td className="max-w-sm truncate font-medium">
+                        {row.description || '—'}
+                        {row.reference ? (
+                          <div className="text-[10px] font-medium text-muted">
+                            {row.reference}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="text-xs font-medium text-muted">
+                        {formatWhen(row.createdAt)}
                       </td>
                     </tr>
                   ))
