@@ -33,6 +33,12 @@ export function rideTypeLabel(raw?: string | null) {
   }
 }
 
+export function driverMapPinKind(
+  raw?: string | null,
+): 'driver' | 'driverCar' {
+  return toAdminVehicleCategory(raw) === 'car' ? 'driverCar' : 'driver';
+}
+
 export const RIDE_RATE_LABELS: Record<string, string> = {
   standard: 'Standard (keke)',
   shared: 'Shared (keke)',

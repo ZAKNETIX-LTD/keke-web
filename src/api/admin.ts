@@ -565,6 +565,11 @@ export type DashboardStats = {
   drivers: number;
   driversOnline: number;
   driversAvailable: number;
+  kekesOnline?: number;
+  kekesAvailable?: number;
+  carsOnline?: number;
+  carsAvailable?: number;
+  carsTotal?: number;
   activeTrips: number;
   searchingTrips: number;
   completedToday: number;

@@ -16,6 +16,7 @@ import {
   useRoadPath,
   type MapCoord,
 } from '../lib/maps';
+import { driverMapPinKind } from '../lib/vehicle';
 
 function MapsUnavailable({
   className = '',
@@ -38,12 +39,14 @@ export function TripMap({
   destination,
   polyline,
   driverLocation,
+  driverVehicleType,
   className = '',
 }: {
   pickup?: MapCoord | null;
   destination?: MapCoord | null;
   polyline?: MapCoord[];
   driverLocation?: MapCoord | null;
+  driverVehicleType?: string | null;
   className?: string;
 }) {
   const { isLoaded, shouldUseFallback, loadError, hasKey } = useGoogleMaps();
@@ -134,7 +137,7 @@ export function TripMap({
         {ready && isValidCoord(driverLocation) ? (
           <MarkerF
             position={toLatLngLiteral(driverLocation)}
-            icon={mapPinIcon('driver')}
+            icon={mapPinIcon(driverMapPinKind(driverVehicleType))}
             title="Driver"
           />
         ) : null}

@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   Bike,
   Banknote,
+  Car,
   Coins,
   Headphones,
   MapPinned,
@@ -414,6 +415,20 @@ export function DashboardPage() {
               icon={Bike}
               tone="teal"
             />
+            <KpiCard
+              label="Kekes online"
+              value={stats.kekesOnline ?? Math.max(0, (stats.driversOnline || 0) - (stats.carsOnline || 0))}
+              hint={`${stats.kekesAvailable ?? 0} available`}
+              icon={Bike}
+              tone="amber"
+            />
+            <KpiCard
+              label="Cars online"
+              value={stats.carsOnline ?? 0}
+              hint={`${stats.carsAvailable ?? 0} available · ${stats.carsTotal ?? 0} total`}
+              icon={Car}
+              tone="teal"
+            />
           </section>
 
           <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -636,7 +651,7 @@ export function DashboardPage() {
                   <BarChart data={rideTypes} layout="vertical" margin={{ left: 12 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
                     <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <YAxis type="category" dataKey="name" width={72} tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                    <YAxis type="category" dataKey="name" width={118} tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={tooltipStyle} />
                     <Bar dataKey="value" name="Trips" fill={CYAN} radius={[0, 8, 8, 0]} maxBarSize={22} />
                   </BarChart>

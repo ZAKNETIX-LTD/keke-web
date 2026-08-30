@@ -212,7 +212,8 @@ export function TripDetailPage() {
             </span>
             {driver?.location ? (
               <span className="inline-flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-indigo-500" /> Driver
+                <span className="h-2.5 w-2.5 rounded-full bg-indigo-500" />{' '}
+                {driver?.vehicle?.type === 'car' ? 'Car' : 'Keke'}
               </span>
             ) : null}
           </div>
@@ -222,6 +223,7 @@ export function TripDetailPage() {
           destination={trip.destination?.coordinates}
           polyline={trip.polyline}
           driverLocation={driver?.location}
+          driverVehicleType={driver?.vehicle?.type || trip.rideType}
         />
       </section>
 

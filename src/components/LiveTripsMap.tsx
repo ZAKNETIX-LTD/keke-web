@@ -6,6 +6,7 @@ import {
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { AdminTrip } from '../lib/types';
+import { driverMapPinKind } from '../lib/vehicle';
 import {
   DEFAULT_MAP_OPTIONS,
   MAP_CONTAINER_STYLE,
@@ -175,8 +176,14 @@ export function LiveTripsMap({
         {ready && selected && isValidCoord(selected.driver?.location) ? (
           <MarkerF
             position={toLatLngLiteral(selected.driver.location)}
-            icon={mapPinIcon('driver')}
-            title="Driver"
+            icon={mapPinIcon(
+              driverMapPinKind(
+                selected.driver.vehicle?.type || selected.rideType,
+              ),
+            )}
+            title={
+              selected.driver.vehicle?.type === 'car' ? 'Car' : 'Keke'
+            }
           />
         ) : null}
       </GoogleMap>

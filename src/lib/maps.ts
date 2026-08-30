@@ -264,15 +264,17 @@ export function pinSvg(label: string, color: string): google.maps.Icon | undefin
   };
 }
 
-export type MapPinKind = 'passenger' | 'driver' | 'pickup' | 'dropoff';
+export type MapPinKind = 'passenger' | 'driver' | 'driverCar' | 'pickup' | 'dropoff';
 
 export function mapPinIcon(kind: MapPinKind): google.maps.Icon | undefined {
   if (typeof google === 'undefined' || !google.maps?.Size) return undefined;
-  const size = kind === 'driver' ? 72 : kind === 'passenger' ? 48 : 52;
-  const pin = kind === 'passenger';
+  const size =
+    kind === 'driverCar' ? 40 : kind === 'driver' ? 36 : kind === 'passenger' ? 28 : 32;
+  const centered = kind === 'passenger' || kind === 'driver' || kind === 'driverCar';
+  const file = kind === 'driverCar' ? 'driver-car' : kind;
   return {
-    url: `/map/${kind}.png`,
+    url: `/map/${file}.png`,
     scaledSize: new google.maps.Size(size, size),
-    anchor: new google.maps.Point(size / 2, pin ? size / 2 : size),
+    anchor: new google.maps.Point(size / 2, centered ? size / 2 : size),
   };
 }

@@ -11,6 +11,7 @@ import { adminApi } from '../api/admin';
 import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 import type { AdminRider } from '../lib/types';
+import { driverMapPinKind, toAdminVehicleCategory, vehicleTypeLabel } from '../lib/vehicle';
 import {
   DEFAULT_MAP_OPTIONS,
   MAP_CONTAINER_STYLE,
@@ -38,6 +39,9 @@ const ABUJA = { lat: 9.0765, lng: 7.3986 };
 
 export function LiveRidersPage() {
   const [onlineOnly, setOnlineOnly] = useState(true);
+  const [vehicleFilter, setVehicleFilter] = useState<'all' | 'keke' | 'car'>(
+    'all',
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [ready, setReady] = useState(false);
@@ -60,8 +64,13 @@ export function LiveRidersPage() {
         .filter(
           (x): x is { rider: AdminRider; point: google.maps.LatLngLiteral } =>
             Boolean(x.point),
+        )
+        .filter((x) =>
+          vehicleFilter === 'all'
+            ? true
+            : toAdminVehicleCategory(x.rider.vehicle?.type) === vehicleFilter,
         ),
-    [riders],
+    [riders, vehicleFilter],
   );
 
   const points = useMemo(() => located.map((x) => x.point), [located]);
@@ -88,17 +97,30 @@ export function LiveRidersPage() {
         title="Live riders"
         description="Google Map of rider locations. Pins refresh about every 12 seconds."
         actions={
-          <label className="flex items-center gap-2 text-sm font-bold">
-            <input
-              type="checkbox"
-              checked={onlineOnly}
-              onChange={(e) => setOnlineOnly(e.target.checked)}
-            />
-            Online only
-            {isFetching ? (
-              <span className="text-xs font-semibold text-muted">Updating…</span>
-            ) : null}
-          </label>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              className="ui-input w-auto min-w-[120px]"
+              value={vehicleFilter}
+              onChange={(e) =>
+                setVehicleFilter(e.target.value as 'all' | 'keke' | 'car')
+              }
+            >
+              <option value="all">All vehicles</option>
+              <option value="keke">Keke</option>
+              <option value="car">Car</option>
+            </select>
+            <label className="flex items-center gap-2 text-sm font-bold">
+              <input
+                type="checkbox"
+                checked={onlineOnly}
+                onChange={(e) => setOnlineOnly(e.target.checked)}
+              />
+              Online only
+              {isFetching ? (
+                <span className="text-xs font-semibold text-muted">Updating…</span>
+              ) : null}
+            </label>
+          </div>
         }
       />
 
@@ -128,8 +150,8 @@ export function LiveRidersPage() {
                       <MarkerF
                         key={rider.id}
                         position={point}
-                        icon={mapPinIcon('driver')}
-                        title={rider.name}
+                        icon={mapPinIcon(driverMapPinKind(rider.vehicle?.type))}
+                        title={`${rider.name} · ${vehicleTypeLabel(rider.vehicle?.type)}`}
                         onClick={() => setSelectedId(rider.id)}
                       />
                     ))
@@ -146,6 +168,15 @@ export function LiveRidersPage() {
                       <div className="text-xs text-slate-600">
                         {selected.rider.isOnline ? 'Online' : 'Offline'}
                         {selected.rider.isAvailable ? ' · available' : ' · busy'}
+                      </div>
+                      <div className="mt-1 text-xs text-slate-700">
+                        {vehicleTypeLabel(selected.rider.vehicle?.type)}
+                        {selected.rider.vehicle?.model
+                          ? ` · ${selected.rider.vehicle.model}`
+                          : ''}
+                        {selected.rider.vehicle?.plateNumber
+                          ? ` · ${selected.rider.vehicle.plateNumber}`
+                          : ''}
                       </div>
                       <div className="mt-1 text-xs text-slate-700">
                         {Number(selected.rider.rating || 0).toFixed(1)}★ ·{' '}
@@ -165,10 +196,12 @@ export function LiveRidersPage() {
           )}
           <div className="mt-2 flex flex-wrap gap-3 px-2 text-xs font-bold text-muted">
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-trigo" /> Available
+              <img src="/map/driver.png" alt="" className="h-5 w-5 object-contain" />{' '}
+              Keke
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-amber" /> Busy
+              <img src="/map/driver-car.png" alt="" className="h-5 w-5 object-contain" />{' '}
+              Car
             </span>
             <span>
               {located.length} located · {riders.length} listed
@@ -185,7 +218,13 @@ export function LiveRidersPage() {
             {riders.length === 0 ? (
               <li className="text-sm font-medium text-muted">No riders found.</li>
             ) : (
-              riders.map((r) => {
+              riders
+                .filter((r) =>
+                  vehicleFilter === 'all'
+                    ? true
+                    : toAdminVehicleCategory(r.vehicle?.type) === vehicleFilter,
+                )
+                .map((r) => {
                 const hasPin = Boolean(riderPoint(r));
                 return (
                   <li
@@ -204,6 +243,11 @@ export function LiveRidersPage() {
                           {r.name}
                         </div>
                         <div className="text-[11px] font-semibold text-muted">
+                          {vehicleTypeLabel(r.vehicle?.type)}
+                          {r.vehicle?.plateNumber
+                            ? ` · ${r.vehicle.plateNumber}`
+                            : ''}
+                          {' · '}
                           {r.isOnline ? 'Online' : 'Offline'}
                           {r.isAvailable ? ' · free' : ' · busy'}
                           {hasPin ? '' : ' · no location'}
