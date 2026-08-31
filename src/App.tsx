@@ -27,6 +27,7 @@ import { RevenuePage } from './pages/Revenue';
 import { PayoutsPage } from './pages/Payouts';
 import { StaffPage } from './pages/Staff';
 import { BroadcastsPage } from './pages/Broadcasts';
+import { PrivacyPage } from './pages/Privacy';
 import {
   canAccessAdminPath,
   isKycOfficerOnly,
@@ -74,6 +75,7 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route
               element={
