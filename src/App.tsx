@@ -28,6 +28,7 @@ import { PayoutsPage } from './pages/Payouts';
 import { StaffPage } from './pages/Staff';
 import { BroadcastsPage } from './pages/Broadcasts';
 import { PrivacyPage } from './pages/Privacy';
+import { DeleteAccountPage } from './pages/DeleteAccount';
 import {
   canAccessAdminPath,
   isKycOfficerOnly,
@@ -76,6 +77,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/delete-account" element={<DeleteAccountPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route
               element={

@@ -100,6 +100,7 @@ const SECTIONS: { id: string; title: string; body: string[] }[] = [
     body: [
       'Depending on applicable law, you may request access, correction, deletion, or a copy of certain personal data, or object to / restrict some processing. You can update many profile details in the apps, manage notification preferences, and revoke device permissions.',
       `To make a privacy request, email ${SUPPORT_EMAIL} from the address linked to your account. We may need to verify your identity before responding.`,
+      'To request deletion of your account and associated data, use https://keke-web-pied.vercel.app/delete-account or email us with the subject “Account deletion request”.',
     ],
   },
   {
@@ -153,12 +154,20 @@ export function PrivacyPage() {
               <p className="text-sm text-muted">Privacy Policy</p>
             </div>
           </div>
-          <a
-            href={`mailto:${SUPPORT_EMAIL}`}
-            className="rounded-full bg-trigo px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:bg-trigo-hover"
-          >
-            Contact
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href="/delete-account"
+              className="rounded-full border border-line bg-panel px-4 py-2 text-sm font-semibold text-ink transition hover:border-trigo/40 hover:text-trigo"
+            >
+              Delete account
+            </a>
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="rounded-full bg-trigo px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:bg-trigo-hover"
+            >
+              Contact
+            </a>
+          </div>
         </div>
       </header>
 
