@@ -8,6 +8,10 @@ import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
 import { ROLE, roleLabel } from '../lib/types';
 import { rideTypeLabel } from '../lib/vehicle';
+import {
+  formatTripCancelReason,
+  isCancelledTrip,
+} from '../lib/tripCancel';
 import { useAuth } from '../auth/AuthContext';
 
 function naira(value: number) {
@@ -535,6 +539,11 @@ export function UserDetailPage() {
                     </td>
                     <td>
                       <StatusBadge status={trip.status} />
+                      {isCancelledTrip(trip.status) ? (
+                        <div className="mt-1 max-w-[220px] text-xs font-semibold text-rose-700">
+                          {formatTripCancelReason(trip)}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="text-xs font-medium text-muted">
                       {formatWhen(trip.createdAt)}

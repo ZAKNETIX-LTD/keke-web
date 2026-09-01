@@ -674,6 +674,7 @@ export type PlatformSettings = {
   supportEmail: string;
   companyName: string;
   maintenanceMode: boolean;
+  maintenanceMessage?: string;
   cashThreshold?: number;
   cashHardCap?: number;
   cashBusyWeekTrips?: number;

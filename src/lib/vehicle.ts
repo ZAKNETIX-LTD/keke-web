@@ -35,8 +35,12 @@ export function rideTypeLabel(raw?: string | null) {
 
 export function driverMapPinKind(
   raw?: string | null,
+  rideType?: string | null,
 ): 'driver' | 'driverCar' {
-  return toAdminVehicleCategory(raw) === 'car' ? 'driverCar' : 'driver';
+  if (toAdminVehicleCategory(raw) === 'car' || toAdminVehicleCategory(rideType) === 'car') {
+    return 'driverCar';
+  }
+  return 'driver';
 }
 
 export const RIDE_RATE_LABELS: Record<string, string> = {

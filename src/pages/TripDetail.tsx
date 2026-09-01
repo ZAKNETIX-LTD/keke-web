@@ -18,6 +18,10 @@ import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
 import { TripMap } from '../components/TripMap';
 import { rideTypeLabel, vehicleTypeLabel } from '../lib/vehicle';
+import {
+  formatTripCancelReason,
+  isCancelledTrip,
+} from '../lib/tripCancel';
 
 const ACTIONS = [
   { status: 'accepted', label: 'Set accepted' },
@@ -192,6 +196,20 @@ export function TripDetailPage() {
 
       {message ? <Flash>{message}</Flash> : null}
 
+      {isCancelledTrip(trip.status) ? (
+        <Flash tone="error">
+          <div className="font-bold">Trip cancelled</div>
+          <div className="mt-1 text-sm font-semibold">
+            Reason: {formatTripCancelReason(trip)}
+          </div>
+          {trip.cancelledAt ? (
+            <div className="mt-1 text-xs font-medium opacity-90">
+              Cancelled {formatWhen(trip.cancelledAt)}
+            </div>
+          ) : null}
+        </Flash>
+      ) : null}
+
       <section className="ui-panel overflow-hidden p-3 sm:p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
           <div>
@@ -295,13 +313,21 @@ export function TripDetailPage() {
             <DetailRow label="Created" value={formatWhen(trip.createdAt)} />
             <DetailRow label="Started" value={formatWhen(trip.startedAt)} />
             <DetailRow label="Completed" value={formatWhen(trip.completedAt)} />
-            {trip.cancelReason ? (
-              <DetailRow
-                label="Cancel reason"
-                value={
-                  <span className="text-rose-700">{trip.cancelReason}</span>
-                }
-              />
+            {isCancelledTrip(trip.status) ? (
+              <>
+                <DetailRow
+                  label="Cancelled"
+                  value={formatWhen(trip.cancelledAt)}
+                />
+                <DetailRow
+                  label="Cancel reason"
+                  value={
+                    <span className="text-rose-700">
+                      {formatTripCancelReason(trip)}
+                    </span>
+                  }
+                />
+              </>
             ) : null}
             {trip.rating != null ? (
               <DetailRow label="Rating" value={`${trip.rating}★`} />

@@ -7,6 +7,10 @@ import { Flash } from '../components/Flash';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
 import { rideTypeLabel } from '../lib/vehicle';
+import {
+  formatTripCancelReason,
+  isCancelledTrip,
+} from '../lib/tripCancel';
 
 const STATUSES = [
   'all',
@@ -192,6 +196,11 @@ export function TripsPage() {
                         View
                       </Link>
                     </div>
+                    {isCancelledTrip(trip.status) ? (
+                      <div className="mt-1 max-w-[220px] text-xs font-semibold text-rose-700">
+                        {formatTripCancelReason(trip)}
+                      </div>
+                    ) : null}
                   </td>
                 </tr>
               ))

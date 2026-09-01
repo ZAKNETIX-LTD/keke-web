@@ -12,10 +12,14 @@ import { Flash } from './Flash';
 import { StatusBadge } from './StatusBadge';
 
 const DOC_TYPES = [
-  { type: 'id_front', label: 'ID front' },
-  { type: 'id_back', label: 'ID back' },
-  { type: 'selfie', label: 'Selfie' },
-  { type: 'ownership_doc', label: 'Ownership / assignment' },
+  { type: 'application_selfie', label: 'Application selfie (driver)' },
+  { type: 'id_front', label: 'ID / license front' },
+  { type: 'id_back', label: 'ID / license back' },
+  { type: 'selfie', label: 'Official selfie (officer)' },
+  { type: 'ownership_doc', label: 'Ownership / papers' },
+  { type: 'inspection_doc', label: 'Inspection papers' },
+  { type: 'vehicle_exterior', label: 'Vehicle exterior' },
+  { type: 'vehicle_interior', label: 'Vehicle interior' },
   { type: 'phone_doc', label: 'Phone doc' },
   { type: 'other', label: 'Other' },
 ] as const;

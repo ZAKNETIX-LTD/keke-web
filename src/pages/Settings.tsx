@@ -292,6 +292,22 @@ export function SettingsPage() {
                   />
                   Maintenance mode
                 </label>
+                {settings.maintenanceMode ? (
+                  <label className="text-sm font-bold sm:col-span-2">
+                    Maintenance message (shown in apps)
+                    <textarea
+                      className="ui-input mt-1.5 min-h-[96px] resize-y"
+                      value={settings.maintenanceMessage || ''}
+                      placeholder="Fastigo is temporarily unavailable for scheduled maintenance. Please try again shortly."
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          maintenanceMessage: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                ) : null}
                 <label className="text-sm font-bold">
                   Cash notify at (₦)
                   <input

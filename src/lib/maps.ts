@@ -249,32 +249,103 @@ export const DEFAULT_MAP_OPTIONS: google.maps.MapOptions = {
   ],
 };
 
-export function pinSvg(label: string, color: string): google.maps.Icon | undefined {
+const BRAND = {
+  teal: '#10A090',
+  amber: '#E8AC0C',
+  kekeYellow: '#F5C518',
+  kekeRoof: '#2D3748',
+} as const;
+
+function svgMapIcon(
+  svg: string,
+  width: number,
+  height: number,
+  anchorX: number,
+  anchorY: number,
+): google.maps.Icon | undefined {
   if (typeof google === 'undefined' || !google.maps?.Size) return undefined;
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg.trim())}`,
+    scaledSize: new google.maps.Size(width, height),
+    anchor: new google.maps.Point(anchorX, anchorY),
+  };
+}
+
+export function pinSvg(label: string, color: string): google.maps.Icon | undefined {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">
       <circle cx="17" cy="17" r="15" fill="${color}" stroke="white" stroke-width="3"/>
       <text x="17" y="22" text-anchor="middle" fill="white" font-size="13" font-family="Arial" font-weight="700">${label}</text>
     </svg>
   `;
-  return {
-    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(34, 34),
-    anchor: new google.maps.Point(17, 17),
-  };
+  return svgMapIcon(svg, 34, 34, 17, 17);
 }
 
 export type MapPinKind = 'passenger' | 'driver' | 'driverCar' | 'pickup' | 'dropoff';
 
+function teardropPinSvg(label: string, fill: string): string {
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+      <path d="M16 1C8.8 1 3 6.8 3 14c0 9.5 13 24.5 13 24.5S29 23.5 29 14C29 6.8 23.2 1 16 1z" fill="${fill}" stroke="white" stroke-width="2"/>
+      <text x="16" y="19" text-anchor="middle" fill="white" font-size="14" font-family="Arial" font-weight="700">${label}</text>
+    </svg>
+  `;
+}
+
+function kekePinSvg(): string {
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+      <ellipse cx="18" cy="33" rx="8" ry="2" fill="#000" opacity="0.18"/>
+      <rect x="8" y="14" width="20" height="10" rx="2" fill="${BRAND.kekeYellow}"/>
+      <path d="M10 14 L14 8 L24 8 L26 14 Z" fill="${BRAND.kekeRoof}"/>
+      <rect x="11" y="15" width="6" height="5" rx="1" fill="${BRAND.kekeRoof}" opacity="0.85"/>
+      <circle cx="12" cy="26" r="3.5" fill="#1a202c"/>
+      <circle cx="24" cy="26" r="3.5" fill="#1a202c"/>
+      <circle cx="12" cy="26" r="1.5" fill="#cbd5e1"/>
+      <circle cx="24" cy="26" r="1.5" fill="#cbd5e1"/>
+    </svg>
+  `;
+}
+
+function carPinSvg(): string {
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+      <path d="M6 34 L20 22 L34 34 Z" fill="${BRAND.teal}" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M10 22 h20 l-2.5-6.5c-.4-1-1.2-1.5-2.3-1.5H14.8c-1.1 0-1.9.5-2.3 1.5L10 22z" fill="white" stroke="#cbd5e1" stroke-width="0.75"/>
+      <rect x="12.5" y="14" width="6" height="4.5" rx="0.75" fill="${BRAND.kekeRoof}" opacity="0.9"/>
+      <rect x="21.5" y="14" width="6" height="4.5" rx="0.75" fill="${BRAND.kekeRoof}" opacity="0.9"/>
+      <circle cx="14" cy="22.5" r="2.2" fill="#1a202c"/>
+      <circle cx="26" cy="22.5" r="2.2" fill="#1a202c"/>
+      <circle cx="14" cy="22.5" r="0.9" fill="${BRAND.teal}"/>
+      <circle cx="26" cy="22.5" r="0.9" fill="${BRAND.teal}"/>
+    </svg>
+  `;
+}
+
+function passengerPinSvg(): string {
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+      <circle cx="14" cy="14" r="12" fill="${BRAND.teal}" stroke="white" stroke-width="2"/>
+      <circle cx="14" cy="11" r="3.5" fill="white"/>
+      <path d="M8.5 21c.8-3 2.7-4.5 5.5-4.5s4.7 1.5 5.5 4.5" fill="white"/>
+    </svg>
+  `;
+}
+
+/** Transparent SVG pins — PNG assets had baked white/black box backgrounds on web maps. */
 export function mapPinIcon(kind: MapPinKind): google.maps.Icon | undefined {
-  if (typeof google === 'undefined' || !google.maps?.Size) return undefined;
-  const size =
-    kind === 'driverCar' ? 40 : kind === 'driver' ? 36 : kind === 'passenger' ? 28 : 32;
-  const centered = kind === 'passenger' || kind === 'driver' || kind === 'driverCar';
-  const file = kind === 'driverCar' ? 'driver-car' : kind;
-  return {
-    url: `/map/${file}.png`,
-    scaledSize: new google.maps.Size(size, size),
-    anchor: new google.maps.Point(size / 2, centered ? size / 2 : size),
-  };
+  switch (kind) {
+    case 'pickup':
+      return svgMapIcon(teardropPinSvg('A', BRAND.teal), 32, 40, 16, 37);
+    case 'dropoff':
+      return svgMapIcon(teardropPinSvg('B', BRAND.amber), 32, 40, 16, 37);
+    case 'driver':
+      return svgMapIcon(kekePinSvg(), 36, 36, 18, 30);
+    case 'driverCar':
+      return svgMapIcon(carPinSvg(), 40, 40, 20, 34);
+    case 'passenger':
+      return svgMapIcon(passengerPinSvg(), 28, 28, 14, 14);
+    default:
+      return undefined;
+  }
 }

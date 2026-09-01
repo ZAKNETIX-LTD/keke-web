@@ -12,6 +12,10 @@ import {
   toApiVehicleType,
   vehicleTypeLabel,
 } from '../lib/vehicle';
+import {
+  formatTripCancelReason,
+  isCancelledTrip,
+} from '../lib/tripCancel';
 
 function naira(value: number) {
   return `₦${Number(value || 0).toLocaleString()}`;
@@ -737,6 +741,11 @@ export function RiderDetailPage() {
                     </td>
                     <td>
                       <StatusBadge status={trip.status} />
+                      {isCancelledTrip(trip.status) ? (
+                        <div className="mt-1 max-w-[220px] text-xs font-semibold text-rose-700">
+                          {formatTripCancelReason(trip)}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="text-xs font-medium text-muted">
                       {formatWhen(trip.createdAt)}
