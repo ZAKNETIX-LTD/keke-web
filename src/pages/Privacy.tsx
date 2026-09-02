@@ -1,4 +1,4 @@
-const LAST_UPDATED = '31 August 2026';
+const LAST_UPDATED = '2 September 2026';
 const SUPPORT_EMAIL = 'support@hamsyltravels.com';
 const OPERATOR = 'Hamsyl Travels / Fastigo';
 
@@ -29,7 +29,7 @@ const SECTIONS: { id: string; title: string; body: string[] }[] = [
     body: [
       'Account & profile: name, email address, phone number, username, password (stored in hashed form), profile photo, and similar account details you provide.',
       'Driver / KYC information: government ID numbers and images (for example NIN or driver’s licence), application selfies, vehicle details, vehicle photos, ownership or inspection documents, and related verification data when you apply as a driver.',
-      'Location: precise or approximate location from your device when you use map, matching, navigation, trip tracking, or go online as a driver. Background location may be used on the Driver app while you are online or on an active trip so passengers can track you and we can match nearby rides.',
+      'Location: precise or approximate location from your device when you use map, matching, navigation, or trip tracking. The Fastigo passenger app uses location only while you are using the app (foreground) to set pickup points and see nearby drivers. The Fastigo Driver app may use background location while you are online or on an active trip so passengers can track you and we can match nearby rides.',
       'Trip & usage: pickup and drop-off details, route information, fare estimates and totals, trip status, ratings, chat messages related to a trip, support tickets, SOS alerts, and app interaction logs.',
       'Payments & wallet: payment method metadata, wallet balances and transactions, payout / bank account details you provide for driver cash-out, and records needed for commissions and refunds. Card details are typically processed by our payment partners (for example Paystack) and are not stored in full on our servers.',
       'Device & technical: device type, operating system, app version, push notification tokens, IP address, crash and performance diagnostics, and similar technical data.',
@@ -76,7 +76,7 @@ const SECTIONS: { id: string; title: string; body: string[] }[] = [
     id: 'location',
     title: '7. Location data',
     body: [
-      'Location is core to ride-hailing. Passengers use location to set pickup points and see nearby drivers. Drivers share location while online or on a trip for matching, navigation, and passenger tracking.',
+      'Location is core to ride-hailing. Passengers use foreground location to set pickup points and see nearby drivers while using the app. Drivers share location while online or on a trip for matching, navigation, and passenger tracking.',
       'You can control location permissions in your device settings. If you disable location, some features will not work. On Fastigo Driver, denying “Always” / background location may limit tracking when the app is in the background.',
     ],
   },
